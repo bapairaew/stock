@@ -1,6 +1,7 @@
 import React from 'react';
 import { AutoComplete } from 'antd';
 import request from 'utils/request';
+import debounce from 'utils/debounce';
 import qs from 'qs';
 
 const Option = AutoComplete.Option;
@@ -14,20 +15,21 @@ export class _AutoComplete extends React.Component {
   constructor(props) {
     super(props);
     this.state.value = props.value;
+    this.debonceRequest = debounce(this.request.bind(this), 300);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.value !== nextProps.value || this.state.value !== nextState.value;
+  request(value) {
+    const { endpoint, limit } = this.props;
+    request(`${endpoint}?${qs.stringify({ text: value, limit })}`)
+      .then(results => {
+        this.setState({ dataSource: results.map(r => `${r.id} ${r.name}`) });
+        this.results = results;
+      });
   }
 
   onChange(value) {
-    const { endpoint, limit } = this.props;
     if (value && value.length >= 3) {
-      request(`${endpoint}?${qs.stringify({ text: value, limit })}`)
-        .then(results => {
-          this.setState({ dataSource: results.map(r => `${r.id} ${r.name}`) });
-          this.results = results;
-        });
+      this.debonceRequest(value);
     } else {
       this.setState({ dataSource: [] });
     }
@@ -41,7 +43,6 @@ export class _AutoComplete extends React.Component {
     const item = this.results[dataSource.indexOf(value)];
     onUpdate(item);
     setTimeout(() => this.setState({ value: item.id }));
-
   }
 
   render() {
