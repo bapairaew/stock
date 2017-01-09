@@ -11,9 +11,11 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { IntlProvider } from 'react-intl';
 import { selectLocale } from './selectors';
+import moment from 'moment';
 
 export class LanguageProvider extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
+    moment.locale(this.props.locale);
     return (
       <IntlProvider locale={this.props.locale} key={this.props.locale} messages={this.props.messages[this.props.locale]}>
         {React.Children.only(this.props.children)}

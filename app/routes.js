@@ -34,6 +34,69 @@ export default function createRoutes(store) {
         importModules.catch(errorLoading);
       },
     }, {
+      path: '/d',
+      name: 'dataTable',
+      getComponent(nextState, cb) {
+        const importModules = Promise.all([
+          System.import('containers/DataTable/reducer'),
+          System.import('containers/DataTable/sagas'),
+          System.import('containers/DataTable'),
+        ]);
+
+        const renderRoute = loadModule(cb);
+
+        importModules.then(([reducer, sagas, component]) => {
+          injectReducer('dataTable', reducer.default);
+          injectSagas(sagas.default);
+          renderRoute(component);
+        });
+
+        importModules.catch(errorLoading);
+      },
+      childRoutes: [
+        {
+          path: 'sell',
+          name: 'sellPage',
+          stockType: 'sell',
+          getComponents(location, cb) {
+            const importModules = Promise.all([
+              System.import('containers/StockPage/SearchModal'),
+              System.import('containers/StockPage/SellPage'),
+            ])
+            .then(([ modal, page ]) => {
+              cb(null, { searchModal: modal.default, page: page.default })
+            });
+          },
+        },
+        {
+          path: 'buy',
+          name: 'buyPage',
+          stockType: 'buy',
+          getComponents(location, cb) {
+            const importModules = Promise.all([
+              System.import('containers/StockPage/SearchModal'),
+              System.import('containers/StockPage'),
+            ])
+            .then(([ modal, page ]) => {
+              cb(null, { searchModal: modal.default, page: page.default })
+            });
+          },
+        },
+        {
+          path: 'products',
+          name: 'productsPage',
+          getComponents(location, cb) {
+            const importModules = Promise.all([
+              System.import('containers/ProductsPage/SearchModal'),
+              System.import('containers/ProductsPage'),
+            ])
+            .then(([ modal, component ]) => {
+              cb(null, { searchModal: modal.default, page: component.default })
+            });
+          },
+        }
+      ],
+    }, {
       path: '*',
       name: 'notfound',
       getComponent(nextState, cb) {

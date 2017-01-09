@@ -1,1 +1,3 @@
-[]
+{
+  "app.containers.DataTable.saveSuccessMessage": "Saved successfully."
+}

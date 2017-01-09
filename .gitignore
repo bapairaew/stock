@@ -4,6 +4,9 @@ build
 node_modules
 stats.json
 
+# temporary file for download/upload
+__temp
+
 # Cruft
 .DS_Store
 npm-debug.log

@@ -12,10 +12,16 @@ module.exports = (options) => ({
     publicPath: '/',
   }, options.output), // Merge with env dependent settings
   module: {
+    noParse: [/moment.js/],
     loaders: [{
       test: /\.js$/, // Transform all .js files required somewhere with Babel
       loader: 'babel',
       exclude: /node_modules/,
+      query: options.babelQuery,
+    }, {
+      test: /\.es.js$/,
+      loader: 'babel',
+      include: /node_modules/,
       query: options.babelQuery,
     }, {
       // Do not transform vendor's CSS with CSS-modules
@@ -74,6 +80,9 @@ module.exports = (options) => ({
       'jsnext:main',
       'main',
     ],
+    alias: {
+      moment: 'moment/moment.js'
+    },
   },
   devtool: options.devtool,
   target: 'web', // Make web variables accessible to webpack, e.g. window
