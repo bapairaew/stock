@@ -1,3 +1,5 @@
+// Slower...
+
 import React from 'react';
 import { Cell } from 'fixed-data-table';
 
