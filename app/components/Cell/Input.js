@@ -17,10 +17,6 @@ class Input extends React.PureComponent { // eslint-disable-line react/prefer-st
     this.state.value = props.value;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.props.value !== nextProps.value || this.state.value !== nextState.value;
-  }
-
   onUpdate = (value) => {
     const { onUpdate = () => {}, cleanValue } = this.props;
     cleanValue !== value && onUpdate(value);

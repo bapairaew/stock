@@ -53,6 +53,17 @@ export const EditableCell = ({ data, cleanData, rowIndex, col, onUpdate, ...prop
   );
 };
 
+export const EditableNumberCell = ({ data, cleanData, rowIndex, col, onUpdate, ...props }) => {
+  const row = getRow({ data, rowIndex });
+  return (
+    <Cell {...props} row={row}>
+      <InputCellContainer>
+        <NumberInput type="number" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate })} />
+      </InputCellContainer>
+    </Cell>
+  );
+};
+
 const AutoCompleteContent = ({ value, cleanValue, removed, onUpdate, endpoint, limit }) => (
   <InputCellContainer>
     <StatusBackgroundContainer
@@ -72,17 +83,6 @@ export const EditableAutoCompleteCell = ({ data, cleanData, rowIndex, col, onUpd
     <Cell {...props} row={row}>
       <AutoCompleteContent {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate })}
         endpoint={endpoint} limit={limit} />
-    </Cell>
-  );
-}
-
-export const EditableNumberCell = ({ data, cleanData, rowIndex, col, onUpdate, ...props }) => {
-  const row = getRow({ data, rowIndex });
-  return (
-    <Cell {...props} row={row}>
-      <InputCellContainer>
-        <NumberInput type="number" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate })} />
-      </InputCellContainer>
     </Cell>
   );
 };
