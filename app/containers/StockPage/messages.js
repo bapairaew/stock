@@ -34,9 +34,9 @@ export default defineMessages({
     id: 'app.containers.StockPage.productName',
     defaultMessage: 'Spare Name',
   },
-  modelName: {
-    id: 'app.containers.StockPage.modelName',
-    defaultMessage: 'Model Name',
+  model: {
+    id: 'app.containers.StockPage.model',
+    defaultMessage: 'Model',
   },
   amount:{
     id: 'app.containers.StockPage.amount',

@@ -12,6 +12,17 @@ import { selectQuery, selectData, selectCleanData } from 'containers/DataTable/s
 import { fromJS } from 'immutable';
 import moment from 'moment';
 import GetContainerDimensions from 'react-dimensions';
+import { StyledLayout, StyledSider, StyledContent } from 'components/Layout';
+import styled from 'styled-components';
+import RemainingBar from './RemainingBar';
+
+const StyledRemainingBar = styled(RemainingBar)`
+  display: ${props => props.collapsed ? 'none' : 'block'};
+  height: ${props => props.height};
+`;
+
+const safeGetNumber = value => value || 0;
+const getTotalValue = ({ row }) => row && +safeGetNumber(safeGetNumber(row.get('price')) * safeGetNumber(row.get('amount'))).toFixed(2);
 
 import messages from './messages';
 
@@ -19,6 +30,10 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
 
   static contextTypes = {
     intl: React.PropTypes.object.isRequired,
+  };
+
+  state = {
+    collapsed: false
   };
 
   componentDidMount() {
@@ -43,58 +58,71 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
     const commonEditableCellProps = { onUpdate: update, data, cleanData };
     const commonInEditableCellProps = { data, cleanData };
     const onProductUpdate = ({ value, rowIndex }) => update({ value, rowIndex, col: 'product' });
+    const { collapsed } = this.state;
+
+    const _containerWidth = containerWidth - (collapsed ? 64 : 200);
 
     return (
       <div>
         <Helmet title={intl.formatMessage(messages[`${stockType}Title`])} />
-        <Table
-          width={containerWidth}
-          height={containerHeight}
-          rowsCount={data.count()}
-          headerHeight={30}
-          rowHeight={30}>
-          <Column
-            header={<Cell></Cell>}
-            cell={<ToolCell data={data} remove={remove} revertRemove={revertRemove} />}
-            width={30} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.order} /></Cell>}
-            cell={<EditableNumberCell {...commonEditableCellProps} col={['order']} />}
-            width={50} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.date} /></Cell>}
-            cell={<EditableDateCell {...commonEditableCellProps} col={['date']} />}
-            width={150} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.receiptId} /></Cell>}
-            cell={<EditableCell {...commonEditableCellProps} col={['receiptId']} />}
-            width={150} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.productId} /></Cell>}
-            cell={<EditableAutoCompleteCell {...commonEditableCellProps} onUpdate={onProductUpdate} col={['product', 'id']}
-              limit={10} endpoint={'/api/v0/products'} />}
-            width={200} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.productName} /></Cell>}
-            cell={<TextCell {...commonInEditableCellProps} col={['product', 'name']} />}
-            width={Math.max(300, containerWidth - 980)} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.modelName} /></Cell>}
-            cell={<TextCell {...commonInEditableCellProps} col={['product', 'model']}  />}
-            width={100} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.amount} /></Cell>}
-            cell={<EditableNumberCell {...commonEditableCellProps} col={['amount']} />}
-            width={100} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.price} /></Cell>}
-            cell={<EditableNumberCell {...commonEditableCellProps} col={['price']} />}
-            width={100} />
-          <Column
-            header={<Cell><FormattedMessage {...messages.total} /></Cell>}
-            cell={<NumberCell {...commonInEditableCellProps} getValue={p => p && ((p.get('price') || 0) * (p.get('amount') || 0))} />}
-            width={100} />
-        </Table>
+        <StyledLayout>
+          <StyledSider
+            collapsible
+            collapsed={collapsed}
+            onCollapse={() => this.setState({ collapsed: !collapsed })}>
+            <StyledRemainingBar height={containerHeight - 46 * 2} stockType={stockType} />
+          </StyledSider>
+          <StyledContent>
+            <Table
+              width={_containerWidth}
+              height={containerHeight - 46 * 2}
+              rowsCount={data.count()}
+              headerHeight={30}
+              rowHeight={30}>
+              <Column
+                header={<Cell></Cell>}
+                cell={<ToolCell data={data} remove={remove} revertRemove={revertRemove} />}
+                width={30} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.order} /></Cell>}
+                cell={<EditableNumberCell {...commonEditableCellProps} col={['order']} />}
+                width={50} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.date} /></Cell>}
+                cell={<EditableDateCell {...commonEditableCellProps} col={['date']} />}
+                width={130} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.receiptId} /></Cell>}
+                cell={<EditableCell {...commonEditableCellProps} col={['receiptId']} />}
+                width={150} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.productId} /></Cell>}
+                cell={<EditableAutoCompleteCell {...commonEditableCellProps} onUpdate={onProductUpdate} col={['product', 'id']}
+                  limit={10} endpoint={'/api/v0/products'} />}
+                width={180} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.productName} /></Cell>}
+                cell={<TextCell {...commonInEditableCellProps} col={['product', 'name']} />}
+                width={Math.max(200, _containerWidth - 920)} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.model} /></Cell>}
+                cell={<TextCell {...commonInEditableCellProps} col={['product', 'model']}  />}
+                width={80} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.amount} /></Cell>}
+                cell={<EditableNumberCell {...commonEditableCellProps} col={['amount']} />}
+                width={100} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.price} /></Cell>}
+                cell={<EditableNumberCell decimal={2} {...commonEditableCellProps} col={['price']} />}
+                width={100} />
+              <Column
+                header={<Cell><FormattedMessage {...messages.total} /></Cell>}
+                cell={<NumberCell {...commonInEditableCellProps} getValue={getTotalValue} />}
+                width={100} />
+            </Table>
+          </StyledContent>
+        </StyledLayout>
       </div>
     );
   }
@@ -117,6 +145,6 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const dimensionsOptions = { getHeight: () => document.body.clientHeight - 46 * 2, getWidth: () => document.body.clientWidth };
+const dimensionsOptions = { elementResize: true, getHeight: () => document.body.clientHeight, getWidth: () => document.body.clientWidth };
 
 export default GetContainerDimensions(dimensionsOptions)(connect(mapStateToProps, mapDispatchToProps)(StockPage));

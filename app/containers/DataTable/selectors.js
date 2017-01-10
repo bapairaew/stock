@@ -52,6 +52,15 @@ const selectEndpoint = () => createSelector(
   (substate) => substate.get('endpoint'),
 );
 
+const selectChangedRows = () => createSelector(
+  selectDataTable(),
+  (substate) => {
+    const data = substate.get('data');
+    const cleanData = substate.get('cleanData');
+    return data.filter((r, i) => r !== cleanData.get(i));
+  }
+);
+
 export {
   selectDataTable,
   selectData,
@@ -64,4 +73,5 @@ export {
   selectUploadVisible,
   selectError,
   selectEndpoint,
+  selectChangedRows,
 };

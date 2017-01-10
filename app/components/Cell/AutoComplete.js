@@ -18,6 +18,10 @@ export class _AutoComplete extends React.Component {
     this.debonceRequest = debounce(this.request.bind(this), 300);
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({ value: nextProps.value });
+  }
+
   request(value) {
     const { endpoint, limit } = this.props;
     request(`${endpoint}?${qs.stringify({ text: value, limit })}`)

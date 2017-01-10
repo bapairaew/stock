@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/sum/:id', (req, res) => {
+router.get('/details/:id', (req, res) => {
   const { id } = req.params;
   Promise.all([
     Product.find({ _id: id }),

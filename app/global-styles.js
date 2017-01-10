@@ -20,4 +20,8 @@ injectGlobal`
     height: 100%;
     width: 100%;
   }
+
+  .ant-select-dropdown {
+    width: auto !important;
+  }
 `;

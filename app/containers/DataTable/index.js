@@ -11,10 +11,10 @@ import { addRow, save, exportRows,
   clearError } from './actions';
 import 'fixed-data-table/dist/fixed-data-table.min.css';
 import className from './fixedDataTableStyle';
-import { Layout, message, Spin } from 'antd';
-import { Content } from 'components/StyledAntd';
+import { message, Spin } from 'antd';
+import { StyledContent } from 'components/Layout';
 import SpinTip from 'components/SpinTip';
-import { Container, StyledHeader } from 'components/Layout';
+import { Container, StyledLayout, SubHeader } from 'components/Layout';
 import { ErrorModal, UploadModal } from 'components/Modal';
 import { ToolBar } from 'components/ToolBar';
 
@@ -57,8 +57,8 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
           finished={uploadClose}
           visible={uploadVisible} />
         <Spin size="large" spinning={loading} tip={<SpinTip />}>
-          <Layout>
-            <StyledHeader>
+          <StyledLayout>
+            <SubHeader>
               <ToolBar
                 add={() => { message.info(intl.formatMessage(messages.addRowMessage)); add() }}
                 query={query}
@@ -67,11 +67,11 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
                 importRows={uploadOpen}
                 exportRows={() => exportRows(data)}
                 exporting={exporting} />
-            </StyledHeader>
-            <Content className={className}>
+            </SubHeader>
+            <StyledContent className={className}>
               {page}
-            </Content>
-          </Layout>
+            </StyledContent>
+          </StyledLayout>
         </Spin>
       </Container>
     );

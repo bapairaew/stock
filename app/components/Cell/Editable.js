@@ -53,12 +53,13 @@ export const EditableCell = ({ data, cleanData, rowIndex, col, onUpdate, ...prop
   );
 };
 
-export const EditableNumberCell = ({ data, cleanData, rowIndex, col, onUpdate, ...props }) => {
+export const EditableNumberCell = ({ data, cleanData, rowIndex, col, onUpdate, decimal = 0, ...props }) => {
   const row = getRow({ data, rowIndex });
   return (
     <Cell {...props} row={row}>
       <InputCellContainer>
-        <NumberInput type="number" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate })} />
+        <NumberInput type="number" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate,
+            setter: v => v && v.toFixed(decimal)})} />
       </InputCellContainer>
     </Cell>
   );

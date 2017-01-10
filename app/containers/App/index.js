@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Nav from 'components/Nav';
 import { Layout } from 'antd';
-import { Header, Content } from 'components/StyledAntd';
+import { StyledHeader, StyledContent } from 'components/Layout';
 
 const Container = styled.div`
   height: 100%;
@@ -23,12 +23,12 @@ export default class App extends React.PureComponent { // eslint-disable-line re
     return (
       <Container>
         <Layout>
-          <Header>
+          <StyledHeader>
             <Nav pathname={pathname} />
-          </Header>
-          <Content>
+          </StyledHeader>
+          <StyledContent>
             {React.Children.toArray(this.props.children)}
-          </Content>
+          </StyledContent>
         </Layout>
       </Container>
     );

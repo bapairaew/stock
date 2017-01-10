@@ -19,7 +19,7 @@ const RightAlignedCell = styled(StyledCell)`
 const _getValue = ({ data, rowIndex, col }) => data.getIn([rowIndex].concat(col));
 
 const getInEditableCellValue = ({ data, rowIndex, col, getValue }) =>
-  getValue === undefined ? _getValue({ data, rowIndex, col }) : getValue(data.get(rowIndex));
+  getValue === undefined ? _getValue({ data, rowIndex, col }) : getValue({ row: data.get(rowIndex), data, rowIndex, col });
 
 const getInEditableCellProps = ({ data, cleanData, rowIndex, col, getValue }) => {
   const cleanCellValue = getInEditableCellValue({ data: cleanData, rowIndex, col, getValue });

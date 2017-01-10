@@ -37,7 +37,7 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
         <Helmet title={intl.formatMessage(messages.title)} />
         <Table
           width={containerWidth}
-          height={containerHeight}
+          height={containerHeight - 46 * 2}
           rowsCount={data.count()}
           headerHeight={30}
           rowHeight={30}>
@@ -76,6 +76,6 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const dimensionsOptions = { getHeight: () => document.body.clientHeight - 46 * 2, getWidth: () => document.body.clientWidth };
+const dimensionsOptions = { getHeight: () => document.body.clientHeight, getWidth: () => document.body.clientWidth };
 
 export default GetContainerDimensions(dimensionsOptions)(connect(mapStateToProps, mapDispatchToProps)(ProductsPage));
