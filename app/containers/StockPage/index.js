@@ -51,7 +51,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
     fetch({
       text: '',
       receiptId: '',
-      startDate: moment().subtract(7, 'days').startOf('day').toDate(),
+      startDate: moment().subtract(30, 'days').startOf('day').toDate(),
       endDate: moment().endOf('day').toDate()
     });
   }
