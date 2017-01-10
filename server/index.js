@@ -9,8 +9,9 @@ const isDev = process.env.NODE_ENV !== 'production';
 const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel ? require('ngrok') : false;
 const resolve = require('path').resolve;
 const app = express();
-const mongoose = require('mongoose');
 
+// Database
+const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/stock');
 mongoose.connection.on('error', function(err) {
   console.error('MongoDB connection error: ' + err);

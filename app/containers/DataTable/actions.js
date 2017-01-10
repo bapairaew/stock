@@ -81,9 +81,10 @@ export function save(rows) {
   };
 }
 
-export function saveSuccess() {
+export function saveSuccess(addedRows) {
   return {
     type: SAVE_SUCCESS,
+    addedRows,
   };
 }
 

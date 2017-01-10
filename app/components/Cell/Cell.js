@@ -3,11 +3,11 @@ import { Cell } from 'fixed-data-table';
 
 export class _Cell extends React.PureComponent {
   shouldComponentUpdate(newProps) {
-    return this.props.row !== newProps.row;
+    return this.props.row !== newProps.row || this.props.cleanData !== newProps.cleanData;
   }
 
   render() {
-    const { row, ...props } = this.props;
+    const { row, cleanData, ...props } = this.props;
     return (
       <Cell {...props} />
     );

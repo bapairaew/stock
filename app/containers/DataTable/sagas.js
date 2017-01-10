@@ -49,8 +49,12 @@ export function* saveData(action) {
 
   try {
     const { rows } = action;
-    yield call(request, requestURL, { method: 'POST', body: rows.toJS() });
-    yield put(saveSuccess());
+    const [ addedRows, , ] = yield call(request, requestURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rows.toJS())
+    });
+    yield put(saveSuccess(addedRows));
   } catch (err) {
     yield put(saveFailure(err));
     throw err;

@@ -43,7 +43,7 @@ const initialState = fromJS({
 });
 
 function dataTableReducer(state = initialState, action) {
-  const { value, rowIndex, col, data, query, error, rows, url, endpoint, newRow } = action;
+  const { value, rowIndex, col, data, query, error, rows, url, endpoint, newRow, addedRows } = action;
   const _data = fromJS(data);
   switch (action.type) {
     case UPDATE_ROW:
@@ -51,7 +51,7 @@ function dataTableReducer(state = initialState, action) {
         .setIn(['data', rowIndex].concat(col), fromJS(value));
     case ADD_ROW:
       return state
-        .updateIn(['data'], arr => arr.push(state.get('newRow')()));
+        .update('data', arr => arr.push(state.get('newRow')()));
     case REMOVE_ROW:
       return state
         .setIn(['data', rowIndex, 'removed'], true);
@@ -79,9 +79,13 @@ function dataTableReducer(state = initialState, action) {
       return state
         .set('loading', true);
     case SAVE_SUCCESS:
-      return state
+      let idx = 0;
+      let _state = state
         .set('loading', false)
-        .set('cleanData', state.get('data'));
+        .update('data', arr => arr.filter(x => !x.get('removed')))
+        .update('data', arr => arr.map(r => r.get('_id') ? r : r.set('_id', addedRows[idx++]._id)));
+      return _state
+        .set('cleanData', _state.get('data'));
     case SAVE_FAILURE:
       return state
         .set('loading', false)

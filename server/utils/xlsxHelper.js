@@ -29,7 +29,6 @@ function sheetFromArray(data, opts) {
 	return ws;
 }
 
-
 module.exports = {
 	sheetFromArray,
 };

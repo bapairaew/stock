@@ -11,6 +11,8 @@ const CardContainer = styled.div`
   height: 100%;
 `;
 
+const getDirection = (stockType) => (stockType === 'buy' ? 1 : -1);
+
 export class RemainingBar extends React.PureComponent {
 
   shouldComponentUpdate(newProps) {
@@ -27,19 +29,33 @@ export class RemainingBar extends React.PureComponent {
         const row = data.get(index);
         const cleanRow = cleanData.get(index);
 
-        if (row.getIn(['product', '_id']) !== cleanRow.getIn(['product', '_id'])) {
-          // product changed
-          return fromJS([{
-            product: row.get('product'),
-            diff: row.get('amount') * (stockType === 'buy' ? 1 : -1),
-          }, {
-            product: cleanRow.get('product'),
-            diff: cleanRow.get('amount') * (stockType === 'buy' ? 1 : -1),
-          }]);
-        } else {
+        if (!cleanRow) {
+          // new row
           return fromJS([{
             product: r.get('product'),
-            diff: (row.get('amount') - ((cleanRow && cleanRow.get('amount')) || 0)) * (stockType === 'buy' ? 1 : -1),
+            diff: r.get('removed') ? 0 : // new row but removed
+              (r.get('amount') || 0) * getDirection(stockType),
+          }]);
+        } else if (row.get('removed')) {
+          // removed row
+          return fromJS([{
+            product: cleanRow.get('product'),
+            diff: (cleanRow.get('amount') || 0) * getDirection(stockType) * -1,
+          }]);
+        } else if (row.getIn(['product', '_id']) !== cleanRow.getIn(['product', '_id'])) {
+          // row changed
+          return fromJS([{
+            product: row.get('product'),
+            diff: row.get('amount') * getDirection(stockType),
+          }, {
+            product: cleanRow.get('product'),
+            diff: cleanRow.get('amount') * getDirection(stockType) * -1,
+          }]);
+        } else {
+          // edited row
+          return fromJS([{
+            product: r.get('product'),
+            diff: (row.get('amount') - ((cleanRow && cleanRow.get('amount')) || 0)) * getDirection(stockType),
           }]);
         }
       })

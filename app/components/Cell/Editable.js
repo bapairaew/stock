@@ -45,7 +45,7 @@ const getInputProperty = ({ row, cleanData, rowIndex, col, onUpdate, setter = v 
 export const EditableCell = ({ data, cleanData, rowIndex, col, onUpdate, ...props }) => {
   const row = getRow({ data, rowIndex });
   return (
-    <Cell {...props} row={row}>
+    <Cell {...props} row={row} cleanData={cleanData}>
       <InputCellContainer>
         <TextInput type="text" {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate })} />
       </InputCellContainer>
@@ -56,7 +56,7 @@ export const EditableCell = ({ data, cleanData, rowIndex, col, onUpdate, ...prop
 export const EditableNumberCell = ({ data, cleanData, rowIndex, col, onUpdate, decimal = 0, ...props }) => {
   const row = getRow({ data, rowIndex });
   return (
-    <Cell {...props} row={row}>
+    <Cell {...props} row={row} cleanData={cleanData}>
       <InputCellContainer>
         <NumberInput type="number" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate,
             setter: v => v && v.toFixed(decimal)})} />
@@ -81,7 +81,7 @@ const AutoCompleteContent = ({ value, cleanValue, removed, onUpdate, endpoint, l
 export const EditableAutoCompleteCell = ({ data, cleanData, rowIndex, col, onUpdate, endpoint, limit, ...props }) => {
   const row = getRow({ data, rowIndex });
   return (
-    <Cell {...props} row={row}>
+    <Cell {...props} row={row} cleanData={cleanData}>
       <AutoCompleteContent {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate })}
         endpoint={endpoint} limit={limit} />
     </Cell>
@@ -106,7 +106,7 @@ const DateContent = ({ value, cleanValue, removed, onUpdate, ...props }) => (
 export const EditableDateCell = ({ data, cleanData, rowIndex, col, onUpdate, ...props }) => {
   const row = getRow({ data, rowIndex });
   return (
-    <Cell {...props} row={row}>
+    <Cell {...props} row={row} cleanData={cleanData}>
       <DateContent {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate, setter: v => v && moment(v), ...props })} />
     </Cell>
   );

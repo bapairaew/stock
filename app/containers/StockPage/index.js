@@ -48,7 +48,12 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       price: 0,
     }));
     setEndpoint(`/api/v0/stock/${stockType}`);
-    fetch({ text: '', receiptId: '', startDate: moment().subtract(30, 'days').toDate(), endDate: moment().toDate() });
+    fetch({
+      text: '',
+      receiptId: '',
+      startDate: moment().subtract(7, 'days').startOf('day').toDate(),
+      endDate: moment().endOf('day').toDate()
+    });
   }
 
   render() {

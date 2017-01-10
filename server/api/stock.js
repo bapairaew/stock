@@ -1,5 +1,13 @@
 const express = require('express');
 const router = new express.Router();
+
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
+
+const { join } = require('../utils/array');
+const { log } = require('../utils/log');
+const { classify, parseResults } = require('../utils/transformer');
+
 const Sell = require('../models/Sell');
 const Buy = require('../models/Buy');
 const Product = require('../models/Product');
@@ -16,7 +24,7 @@ const search = (Model, req, res) => {
         { model: { $regex: text, $options: 'i' } },
       ]})
     .exec(function (err, results) {
-      if (err) return res.status(500).send(err);
+      if (err) return res.status(500).send(log(err));
       res.status(200).json(results.filter(r => r.product));
     });
 };
@@ -29,16 +37,35 @@ router.get('/buy', (req, res) => {
   search(Buy, req, res);
 });
 
-router.post('/sell/save', (req, res) => {
-  setTimeout(() => {
-    res.status(200).json({ status: 'done' });
-  }, 300);
+const parseProps = ({ date, product, order, receiptId, amount, price }) => {
+  return {
+    date: new Date(date),
+    product: product._id,
+    order,
+    receiptId,
+    amount,
+    price,
+  };
+};
+
+const saveAll = (Model, rows, res) => {
+  const { news, changes, removes } = classify(rows);
+
+  return Promise.all(join(
+    news.map(props => Model.create(parseProps(props))),
+    changes.map(props => Model.findOneAndUpdate({ _id: props._id }, { $set: parseProps(props) })),
+    removes.map(({ _id }) => Model.findOneAndRemove({ _id }))
+  ))
+  .then(results => res.status(200).json(parseResults(results, { news, changes, removes })))
+  .catch(err => res.status(500).send(log(err)));
+};
+
+router.post('/sell/save', jsonParser, (req, res) => {
+  saveAll(Sell, req.body, res);
 });
 
-router.post('/buy/save', (req, res) => {
-  setTimeout(() => {
-    res.status(200).json({ status: 'done' });
-  }, 300);
+router.post('/buy/save', jsonParser, (req, res) => {
+  saveAll(Buy, req.body, res);
 });
 
 module.exports = router;

@@ -6,7 +6,7 @@ import { FormattedMessage } from 'react-intl';
 import { Table, Column, Cell } from 'fixed-data-table';
 import { EditableCell } from 'components/Cell/Editable';
 import { ToolCell } from 'components/Cell/Button';
-import { fetch, remove, revertRemoveRow, updateRow, setEndpoint, setNewRow } from 'containers/DataTable/actions';
+import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow } from 'containers/DataTable/actions';
 import { selectQuery, selectData, selectCleanData } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
 import GetContainerDimensions from 'react-dimensions';
@@ -42,13 +42,17 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
           headerHeight={30}
           rowHeight={30}>
           <Column
+            header={<Cell></Cell>}
+            cell={<ToolCell data={data} remove={remove} revertRemove={revertRemove} />}
+            width={30} />
+          <Column
             header={<Cell><FormattedMessage {...messages.productId} /></Cell>}
             cell={<EditableCell {...commonEditableCellProps} col={['id']} />}
             width={300} />
           <Column
             header={<Cell><FormattedMessage {...messages.productName} /></Cell>}
             cell={<EditableCell {...commonEditableCellProps} col={['name']} />}
-            width={Math.max(300, containerWidth - 500)} />
+            width={Math.max(300, containerWidth - 470)} />
           <Column
             header={<Cell><FormattedMessage {...messages.modelName} /></Cell>}
             cell={<EditableCell {...commonEditableCellProps} col={['model']} />}
