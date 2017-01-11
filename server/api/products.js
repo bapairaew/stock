@@ -1,18 +1,16 @@
 const express = require('express');
 const router = new express.Router();
 
-const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
-
 const { join, flatten } = require('../utils/array');
 const { log } = require('../utils/log');
 const { classify, parseResults } = require('../utils/transformer');
+const { isAuthenticated } = require('../utils/auth');
 
 const Product = require('../models/Product');
 const Buy = require('../models/Buy');
 const Sell = require('../models/Sell');
 
-router.get('/', (req, res) => {
+router.get('/', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
   Product.find({
     $or: [
@@ -27,7 +25,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/details/:id', (req, res) => {
+router.get('/details/:id', isAuthenticated, (req, res) => {
   const { id } = req.params;
   Promise.all([
     Product.find({ _id: id }),
@@ -45,7 +43,7 @@ router.get('/details/:id', (req, res) => {
   .catch(err => res.status(500).send(log(err)));
 });
 
-router.post('/save', jsonParser, (req, res) => {
+router.post('/save', isAuthenticated, (req, res) => {
   const { news, changes, removes } = classify(req.body);
 
   Promise.all(join(

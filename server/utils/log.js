@@ -1,8 +1,4 @@
-const log = (obj) => {
+exports.log = (obj) => {
   console.log(obj);
   return obj;
-};
-
-module.exports = {
-	log,
 };

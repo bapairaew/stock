@@ -52,7 +52,7 @@ export function* saveData(action) {
     const [ addedRows, , ] = yield call(request, requestURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(rows.toJS())
+      body: JSON.stringify(rows.toJS()),
     });
     yield put(saveSuccess(addedRows));
   } catch (err) {

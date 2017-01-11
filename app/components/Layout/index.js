@@ -28,3 +28,21 @@ export const Container = styled.div`
 export const SubHeader = styled(StyledHeader)`
   background-color: rgb(15,133,217) !important;
 `;
+
+export const ErrorBox = styled.div`
+  display: ${props => props.visible ? 'block' : 'none'};
+  width: ${props => `${props.width || 300}px`};
+  padding: 15px;
+  margin: 20px 0;
+  background: #f00;
+  color: #fff;
+`;
+
+export const SuccessBox = styled.div`
+  display: ${props => props.visible ? 'block' : 'none'};
+  width: ${props => `${props.width || 300}px`};
+  padding: 15px;
+  margin: 20px 0;
+  background: #8bc34a;
+  color: #fff;
+`;

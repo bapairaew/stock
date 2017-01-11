@@ -1,12 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import Nav from 'components/Nav';
-import { Layout } from 'antd';
-import { StyledHeader, StyledContent } from 'components/Layout';
-
-const Container = styled.div`
-  height: 100%;
-`;
+import { StyledLayout, StyledHeader, StyledContent, Container } from 'components/Layout';
 
 export default class App extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
@@ -22,14 +16,14 @@ export default class App extends React.PureComponent { // eslint-disable-line re
     const { router: { location: { pathname } } } = this.context;
     return (
       <Container>
-        <Layout>
+        <StyledLayout>
           <StyledHeader>
             <Nav pathname={pathname} />
           </StyledHeader>
           <StyledContent>
             {React.Children.toArray(this.props.children)}
           </StyledContent>
-        </Layout>
+        </StyledLayout>
       </Container>
     );
   }

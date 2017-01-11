@@ -7,6 +7,7 @@ const fs = require('fs');
 const XLSX = require('XLSX');
 const settings = require('../../settings');
 const { sheetFromArray } = require('../utils/xlsxHelper');
+const { isAuthenticated } = require('../utils/auth');
 
 const generateFile = () => {
   const id = Math.floor(Math.random() * 100000000000) + '';
@@ -20,15 +21,21 @@ const generateFile = () => {
 
 const getExportPath = (id) => path.join(settings.temp, id);
 
-router.post('/export', (req, res) => {
+router.post('/export', isAuthenticated, (req, res) => {
   setTimeout(() => {
     res.json({ url: `/api/v0/stock/download/${generateFile()}.xlsx` });
   }, 5000);
 });
 
+router.post('/import', isAuthenticated, upload.single('file'), (req, res) => {
+  setTimeout(() => {
+    res.status(200).json([{}]);
+  }, 5000);
+});
+
 const getId = (filename) => path.basename(filename, '.xlsx');
 
-router.get('/download/:filename', (req, res) => {
+router.get('/download/:filename', isAuthenticated, (req, res) => {
   try {
     const { params: { filename } } = req;
     const filepath = getExportPath(getId(filename));
@@ -41,12 +48,6 @@ router.get('/download/:filename', (req, res) => {
   } catch (ex) {
     res.status(500).send(ex);
   }
-});
-
-router.post('/import', upload.single('file'), (req, res) => {
-  setTimeout(() => {
-    res.status(200).json([{}]);
-  }, 5000);
 });
 
 module.exports = router;

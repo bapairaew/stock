@@ -1,7 +1,7 @@
 const XLSX = require('XLSX');
 
 // view-source:http://sheetjs.com/demos/writexlsx.html
-function sheetFromArray(data, opts) {
+exports.sheetFromArray = function (data, opts) {
 	var ws = {};
 	var range = {s: {c:10000000, r:10000000}, e: {c:0, r:0 }};
 	for(var R = 0; R != data.length; ++R) {
@@ -27,8 +27,4 @@ function sheetFromArray(data, opts) {
 	}
 	if(range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
 	return ws;
-}
-
-module.exports = {
-	sheetFromArray,
 };

@@ -1,6 +1,6 @@
 const { join } = require('./array');
 
-const classify = (rows) => {
+exports.classify = (rows) => {
   return {
     news: rows.filter(x => !x._id && !x.removed),
     changes: rows.filter(x => x._id && !x.removed),
@@ -8,7 +8,7 @@ const classify = (rows) => {
   };
 };
 
-const parseResults = (results, { news, changes, removes }) => {
+exports.parseResults = (results, { news, changes, removes }) => {
   // TODO: find better solution
   const indices = {
     news: news.length,
@@ -21,9 +21,4 @@ const parseResults = (results, { news, changes, removes }) => {
     results.slice(indices.news, indices.removes),
     results.slice(indices.removes, results.length),
   ];
-};
-
-module.exports = {
-	classify,
-  parseResults,
 };

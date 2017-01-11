@@ -18,11 +18,11 @@ export default function createRoutes(store) {
 
   return [
     {
-      path: '/',
-      name: 'home',
+      path: '/a',
+      name: 'app',
       getComponent(nextState, cb) {
         const importModules = Promise.all([
-          System.import('containers/HomePage'),
+          System.import('containers/App'),
         ]);
 
         const renderRoute = loadModule(cb);
@@ -33,69 +33,144 @@ export default function createRoutes(store) {
 
         importModules.catch(errorLoading);
       },
+      onEnter(nextState, replace, callback) {
+        const username = window.sessionStorage.getItem('username');
+        if (!username) return window.location.assign('/');
+        callback();
+      },
+      childRoutes: [
+        {
+          path: 'home',
+          name: 'home',
+          getComponent(nextState, cb) {
+            const importModules = Promise.all([
+              System.import('containers/HomePage'),
+            ]);
+
+            const renderRoute = loadModule(cb);
+
+            importModules.then(([component]) => {
+              renderRoute(component);
+            });
+
+            importModules.catch(errorLoading);
+          },
+        }, {
+          path: 'register',
+          name: 'registerPage',
+          getComponent(nextState, cb) {
+            const importModules = Promise.all([
+              System.import('containers/RegisterPage/reducer'),
+              System.import('containers/RegisterPage/sagas'),
+              System.import('containers/RegisterPage'),
+            ]);
+
+            const renderRoute = loadModule(cb);
+
+            importModules.then(([reducer, sagas, component]) => {
+              injectReducer('registerPage', reducer.default);
+              injectSagas(sagas.default);
+              renderRoute(component);
+            });
+
+            importModules.catch(errorLoading);
+          },
+          onEnter(nextState, replace, callback) {
+            const username = window.sessionStorage.getItem('username');
+            if (!username) return window.location.assign('/');
+            if (username !== 'admin') return window.location.assign('/a/home');
+            callback();
+          },
+        }, {
+          path: 'd',
+          name: 'dataTable',
+          getComponent(nextState, cb) {
+            const importModules = Promise.all([
+              System.import('containers/DataTable/reducer'),
+              System.import('containers/DataTable/sagas'),
+              System.import('containers/DataTable'),
+            ]);
+
+            const renderRoute = loadModule(cb);
+
+            importModules.then(([reducer, sagas, component]) => {
+              injectReducer('dataTable', reducer.default);
+              injectSagas(sagas.default);
+              renderRoute(component);
+            });
+
+            importModules.catch(errorLoading);
+          },
+          childRoutes: [
+            {
+              path: 'sell',
+              name: 'sellPage',
+              stockType: 'sell',
+              getComponents(location, cb) {
+                const importModules = Promise.all([
+                  System.import('containers/StockPage/SearchModal'),
+                  System.import('containers/StockPage/SellPage'),
+                ])
+                .then(([ modal, page ]) => {
+                  cb(null, { searchModal: modal.default, page: page.default })
+                });
+              },
+            },
+            {
+              path: 'buy',
+              name: 'buyPage',
+              stockType: 'buy',
+              getComponents(location, cb) {
+                const importModules = Promise.all([
+                  System.import('containers/StockPage/SearchModal'),
+                  System.import('containers/StockPage'),
+                ])
+                .then(([ modal, page ]) => {
+                  cb(null, { searchModal: modal.default, page: page.default })
+                });
+              },
+            },
+            {
+              path: 'products',
+              name: 'productsPage',
+              getComponents(location, cb) {
+                const importModules = Promise.all([
+                  System.import('containers/ProductsPage/SearchModal'),
+                  System.import('containers/ProductsPage'),
+                ])
+                .then(([ modal, component ]) => {
+                  cb(null, { searchModal: modal.default, page: component.default })
+                });
+              },
+            }
+          ],
+        },
+      ],
     }, {
-      path: '/d',
-      name: 'dataTable',
+      path: '/',
+      name: 'loginPage',
       getComponent(nextState, cb) {
         const importModules = Promise.all([
-          System.import('containers/DataTable/reducer'),
-          System.import('containers/DataTable/sagas'),
-          System.import('containers/DataTable'),
+          System.import('containers/LoginPage/reducer'),
+          System.import('containers/LoginPage/sagas'),
+          System.import('containers/LoginPage'),
         ]);
 
         const renderRoute = loadModule(cb);
 
         importModules.then(([reducer, sagas, component]) => {
-          injectReducer('dataTable', reducer.default);
+          injectReducer('loginPage', reducer.default);
           injectSagas(sagas.default);
           renderRoute(component);
         });
 
         importModules.catch(errorLoading);
       },
-      childRoutes: [
-        {
-          path: 'sell',
-          name: 'sellPage',
-          stockType: 'sell',
-          getComponents(location, cb) {
-            const importModules = Promise.all([
-              System.import('containers/StockPage/SearchModal'),
-              System.import('containers/StockPage/SellPage'),
-            ])
-            .then(([ modal, page ]) => {
-              cb(null, { searchModal: modal.default, page: page.default })
-            });
-          },
-        },
-        {
-          path: 'buy',
-          name: 'buyPage',
-          stockType: 'buy',
-          getComponents(location, cb) {
-            const importModules = Promise.all([
-              System.import('containers/StockPage/SearchModal'),
-              System.import('containers/StockPage'),
-            ])
-            .then(([ modal, page ]) => {
-              cb(null, { searchModal: modal.default, page: page.default })
-            });
-          },
-        },
-        {
-          path: 'products',
-          name: 'productsPage',
-          getComponents(location, cb) {
-            const importModules = Promise.all([
-              System.import('containers/ProductsPage/SearchModal'),
-              System.import('containers/ProductsPage'),
-            ])
-            .then(([ modal, component ]) => {
-              cb(null, { searchModal: modal.default, page: component.default })
-            });
-          },
-        }
-      ],
+      onEnter(nextState, replace, callback) {
+        const username = window.sessionStorage.getItem('username');
+        if (username) return window.location.assign('/a/home');
+        callback();
+      },
     }, {
       path: '*',
       name: 'notfound',

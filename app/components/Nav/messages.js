@@ -17,4 +17,12 @@ export default defineMessages({
     id: 'app.components.Nav.products',
     defaultMessage: 'Products',
   },
+  register: {
+    id: 'app.components.Nav.register',
+    defaultMessage: 'Register',
+  },
+  logout: {
+    id: 'app.components.Nav.logout',
+    defaultMessage: 'Logout',
+  },
 });

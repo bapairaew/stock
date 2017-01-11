@@ -1,12 +1,10 @@
 const express = require('express');
 const router = new express.Router();
 
-const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
-
 const { join } = require('../utils/array');
 const { log } = require('../utils/log');
 const { classify, parseResults } = require('../utils/transformer');
+const { isAuthenticated } = require('../utils/auth');
 
 const Sell = require('../models/Sell');
 const Buy = require('../models/Buy');
@@ -29,11 +27,11 @@ const search = (Model, req, res) => {
     });
 };
 
-router.get('/sell', (req, res) => {
+router.get('/sell', isAuthenticated, (req, res) => {
   search(Sell, req, res);
 });
 
-router.get('/buy', (req, res) => {
+router.get('/buy', isAuthenticated, (req, res) => {
   search(Buy, req, res);
 });
 
@@ -60,11 +58,11 @@ const saveAll = (Model, rows, res) => {
   .catch(err => res.status(500).send(log(err)));
 };
 
-router.post('/sell/save', jsonParser, (req, res) => {
+router.post('/sell/save', isAuthenticated, (req, res) => {
   saveAll(Sell, req.body, res);
 });
 
-router.post('/buy/save', jsonParser, (req, res) => {
+router.post('/buy/save', isAuthenticated, (req, res) => {
   saveAll(Buy, req.body, res);
 });
 

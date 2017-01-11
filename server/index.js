@@ -11,17 +11,40 @@ const resolve = require('path').resolve;
 const app = express();
 
 // Database
+const mongoUrl = 'mongodb://localhost/stock';
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/stock');
+mongoose.connect(mongoUrl);
 mongoose.connection.on('error', function(err) {
   console.error('MongoDB connection error: ' + err);
   process.exit(-1); // eslint-disable-line no-process-exit
 });
 
+// Passport
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const cookieParser = require('cookie-parser');
+const session = require('cookie-session');
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(session({keys: ['secretkey1', 'secretkey2', '...']}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+const User = require('./models/User');
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
 app.use('/api/v0/stock', require('./api/stock'));
 app.use('/api/v0/products', require('./api/products'));
 app.use('/api/v0/misc', require('./api/misc'));
+app.use('/api/v0/users', require('./api/users'));
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {
