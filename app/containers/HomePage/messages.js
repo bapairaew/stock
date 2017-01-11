@@ -1,8 +1,3 @@
-/*
- * HomePage Messages
- *
- * This contains all the text for the HomePage component.
- */
 import { defineMessages } from 'react-intl';
 
 export default defineMessages({
@@ -10,8 +5,12 @@ export default defineMessages({
     id: 'app.containers.HomePage.title',
     defaultMessage: 'Home',
   },
-  header: {
-    id: 'app.containers.HomePage.header',
-    defaultMessage: '...',
+  remaining: {
+    id: 'app.containers.HomePage.remaining',
+    defaultMessage: 'Remaining',
+  },
+  product: {
+    id: 'app.containers.HomePage.product',
+    defaultMessage: 'Product',
   },
 });

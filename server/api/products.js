@@ -25,21 +25,43 @@ router.get('/', isAuthenticated, (req, res) => {
     });
 });
 
-router.get('/details/:id', isAuthenticated, (req, res) => {
-  const { id } = req.params;
-  Promise.all([
-    Product.find({ _id: id }),
+const getDetails = (id) => {
+  return Promise.all([
+    Product.findOne({ _id: id }),
     Sell.find({ product: { _id: id } }),
     Buy.find({ product: { _id: id } }),
   ])
   .then(results => {
     const [ product, sell, buy ] = results;
-    res.status(200).json({
+    return {
       product: product,
       sell: sell.reduce((sum, s) => sum + s.amount, 0),
       buy: buy.reduce((sum, b) => sum + b.amount, 0),
+    };
+  });
+}
+
+router.get('/details', isAuthenticated, (req, res) => {
+  const { text, limit } = req.query;
+  Product.find({
+    $or: [
+      { id: { $regex: text, $options: 'i' } },
+      { name: { $regex: text, $options: 'i' } },
+      { model: { $regex: text, $options: 'i' } },
+    ]},
+    function (err, results) {
+      if (err) return res.status(500).send(err);
+      if (limit) results = results.slice(0, limit);
+      Promise.all(results.map(r => getDetails(r._id)))
+      .then(r => res.status(200).json(r))
+      .catch(err => res.status(500).send(log(err)));
     });
-  })
+});
+
+router.get('/details/:id', isAuthenticated, (req, res) => {
+  const { id } = req.params;
+  getDetails(id)
+  .then(r => res.status(200).json(r))
   .catch(err => res.status(500).send(log(err)));
 });
 

@@ -16,6 +16,10 @@ export const StyledCard = styled(_Card)`
   margin: 9px;
 `;
 
+export const Remaining = styled.p`
+  color: ${props => props.value >= 0 ? '#8bc34a' : '#f00'};
+`;
+
 class ProductCard extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
   state = {
@@ -49,9 +53,9 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
     const { stock, loading } = this.state;
     return (
       <StyledCard loading={loading}>
-        <h3>{product.get('id')}</h3>
-        <h4>{product.get('name')}</h4>
-        <p><FormattedMessage {...messages.remaining} />: {stock + diff}</p>
+        <h3>{`${product.get('name')} (${product.get('model')})`}</h3>
+        <h4>{product.get('id')}</h4>
+        <Remaining value={stock + diff}><FormattedMessage {...messages.remaining} />: {stock + diff}</Remaining>
       </StyledCard>
     );
   }
