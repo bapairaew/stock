@@ -63,7 +63,7 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
           <Column
             header={<Cell><FormattedMessage {...messages.productName} /></Cell>}
             cell={<EditableCell {...commonEditableCellProps} col={['name']} />}
-            width={Math.max(300, containerWidth - 470)} />
+            width={Math.max(300, containerWidth - 530)} />
           <Column
             header={<Cell><FormattedMessage {...messages.modelName} /></Cell>}
             cell={<EditableCell {...commonEditableCellProps} col={['model']} />}
