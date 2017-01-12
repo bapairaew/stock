@@ -1,0 +1,3 @@
+export const FETCH_PRODUCT_REQUEST = 'app/ProductPage/FETCH_PRODUCT_REQUEST';
+export const FETCH_PRODUCT_SUCCESS = 'app/ProductPage/FETCH_PRODUCT_SUCCESS';
+export const FETCH_PRODUCT_FAILURE = 'app/ProductPage/FETCH_PRODUCT_FAILURE';

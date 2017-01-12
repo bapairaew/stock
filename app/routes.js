@@ -86,6 +86,26 @@ export default function createRoutes(store) {
             callback();
           },
         }, {
+          path: 'product/:id',
+          name: 'productPage',
+          getComponent(nextState, cb) {
+            const importModules = Promise.all([
+              System.import('containers/ProductPage/reducer'),
+              System.import('containers/ProductPage/sagas'),
+              System.import('containers/ProductPage'),
+            ]);
+
+            const renderRoute = loadModule(cb);
+
+            importModules.then(([reducer, sagas, component]) => {
+              injectReducer('productPage', reducer.default);
+              injectSagas(sagas.default);
+              renderRoute(component);
+            });
+
+            importModules.catch(errorLoading);
+          },
+        }, {
           path: 'd',
           name: 'dataTable',
           getComponent(nextState, cb) {
@@ -146,7 +166,7 @@ export default function createRoutes(store) {
                   cb(null, { searchModal: modal.default, page: component.default })
                 });
               },
-            }
+            },
           ],
         },
       ],

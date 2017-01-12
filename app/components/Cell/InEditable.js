@@ -2,6 +2,7 @@ import React from 'react';
 import { Cell } from 'fixed-data-table';
 import styled from 'styled-components';
 import { getInEditableCellBackground } from './Color';
+import moment from 'moment';
 
 // remove external property
 const _Cell = ({ cleanValue, value, removed, ...props }) => (
@@ -14,6 +15,10 @@ const StyledCell = styled(_Cell)`
 
 const RightAlignedCell = styled(StyledCell)`
   text-align: right;
+`;
+
+const CenterAlignedCell = styled(StyledCell)`
+  text-align: center;
 `;
 
 const _getValue = ({ data, rowIndex, col }) => data.getIn([rowIndex].concat(col));
@@ -38,4 +43,9 @@ export const TextCell = ({ data, cleanData, rowIndex, col, getValue, ...props })
 
 export const NumberCell = ({ data, cleanData, rowIndex, col, getValue, ...props }) => (
   <RightAlignedCell {...props} {...getInEditableCellProps({ data, cleanData, rowIndex, col, getValue })} />
+);
+
+export const DateCell = ({ data, cleanData, rowIndex, col, getValue, ...props }) => (
+  <CenterAlignedCell {...props} {...getInEditableCellProps({ data, cleanData, rowIndex, col,
+      getValue: ({ row, col }) => moment(row.getIn(col)).format('DD/MM/YYYY') })} />
 );

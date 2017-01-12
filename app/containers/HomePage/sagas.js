@@ -10,7 +10,7 @@ import qs from 'qs';
 // Fetch
 export function* fetchProducts() {
   const query = yield select(selectQuery());
-  const requestURL = `/api/v0/products/details?${qs.stringify(query.toJS())}`;
+  const requestURL = `/api/v0/products/sum?${qs.stringify(query.toJS())}`;
 
   try {
     const data = yield call(request, requestURL);

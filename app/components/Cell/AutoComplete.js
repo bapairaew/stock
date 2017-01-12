@@ -4,8 +4,6 @@ import request from 'utils/request';
 import debounce from 'utils/debounce';
 import qs from 'qs';
 
-const Option = AutoComplete.Option;
-
 export class _AutoComplete extends React.Component {
   state = {
     value: '',

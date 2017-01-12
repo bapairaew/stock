@@ -11,7 +11,7 @@ export function* login(action) {
 
   try {
     const { username, password } = action;
-    yield call(request, requestURL,  {
+    yield call(request, requestURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),

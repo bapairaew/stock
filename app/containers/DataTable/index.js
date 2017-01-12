@@ -10,7 +10,7 @@ import { addRow, save, exportRows,
   searchOpen, searchClose, uploadOpen, uploadClose,
   clearError } from './actions';
 import 'fixed-data-table/dist/fixed-data-table.min.css';
-import className from './fixedDataTableStyle';
+import className from '../fixedDataTableStyle';
 import { message, Spin } from 'antd';
 import { StyledContent } from 'components/Layout';
 import SpinTip from 'components/SpinTip';

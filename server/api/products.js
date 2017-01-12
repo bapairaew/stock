@@ -25,7 +25,7 @@ router.get('/', isAuthenticated, (req, res) => {
     });
 });
 
-const getDetails = (id) => {
+const getSum = (id) => {
   return Promise.all([
     Product.findOne({ _id: id }),
     Sell.find({ product: { _id: id } }),
@@ -41,7 +41,7 @@ const getDetails = (id) => {
   });
 }
 
-router.get('/details', isAuthenticated, (req, res) => {
+router.get('/sum', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
   Product.find({
     $or: [
@@ -52,17 +52,34 @@ router.get('/details', isAuthenticated, (req, res) => {
     function (err, results) {
       if (err) return res.status(500).send(err);
       if (limit) results = results.slice(0, limit);
-      Promise.all(results.map(r => getDetails(r._id)))
+      Promise.all(results.map(r => getSum(r._id)))
       .then(r => res.status(200).json(r))
       .catch(err => res.status(500).send(log(err)));
     });
 });
 
-router.get('/details/:id', isAuthenticated, (req, res) => {
+router.get('/sum/:id', isAuthenticated, (req, res) => {
   const { id } = req.params;
-  getDetails(id)
+  getSum(id)
   .then(r => res.status(200).json(r))
   .catch(err => res.status(500).send(log(err)));
+});
+
+router.get('/details/:id', isAuthenticated, (req, res) => {
+  const { id } = req.params;
+  return Promise.all([
+    Product.findOne({ _id: id }),
+    Sell.find({ product: { _id: id } }),
+    Buy.find({ product: { _id: id } }),
+  ])
+  .then(results => {
+    const [ product, sell, buy ] = results;
+    res.status(200).json({
+      product: product,
+      sell: sell,
+      buy: buy,
+    });
+  });
 });
 
 router.post('/save', isAuthenticated, (req, res) => {

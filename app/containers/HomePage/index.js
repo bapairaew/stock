@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import { Link } from 'react-router';
 import Helmet from 'react-helmet';
 import { selectQuery, selectProducts, selectLoading, selectError } from './selectors';
 import { fetchProducts } from './actions';
@@ -49,17 +50,19 @@ export class HomePage extends React.PureComponent {
             <ErrorBox visible={!!error}>{error + ''}</ErrorBox>
             {products.map((p, i) => (
               <StyledCard key={i}>
-                <Body value={p.get('buy') - p.get('sell')}>
-                  <Details>
-                    <H1>{p.getIn(['product', 'name'])}</H1>
-                    <H2>{p.getIn(['product', 'model'])}</H2>
-                    <H3>{p.getIn(['product', 'id'])}</H3>
-                  </Details>
-                  <Remaining>
-                    <p><FormattedMessage {...messages.remaining} /></p>
-                    <Number>{p.get('buy') - p.get('sell')}</Number>
-                  </Remaining>
-                </Body>
+                <Link to={`/a/product/${p.getIn(['product', '_id'])}`}>
+                  <Body value={p.get('buy') - p.get('sell')}>
+                    <Details>
+                      <H1>{p.getIn(['product', 'name'])}</H1>
+                      <H2>{p.getIn(['product', 'model'])}</H2>
+                      <H3>{p.getIn(['product', 'id'])}</H3>
+                    </Details>
+                    <Remaining>
+                      <p><FormattedMessage {...messages.remaining} /></p>
+                      <Number>{p.get('buy') - p.get('sell')}</Number>
+                    </Remaining>
+                  </Body>
+                </Link>
               </StyledCard>
             ))}
           </CardContainer>

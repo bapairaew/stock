@@ -31,7 +31,7 @@ const NumberInput = styled(TextInput)`
 `;
 
 const InputCellContainer = styled.div`
-  margin: -4px;
+  margin: -4px -10px;
 `;
 
 const getRow = ({ data, rowIndex }) => data.get(rowIndex);

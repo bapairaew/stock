@@ -9,7 +9,7 @@ injectGlobal`
   }
 
   .${className} .public_fixedDataTableCell_cellContent {
-    padding: 4px;
+    padding: 4px 10px;
     white-space: nowrap;
   }
 
