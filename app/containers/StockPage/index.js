@@ -19,7 +19,6 @@ import RemainingBar from './RemainingBar';
 import messages from './messages';
 
 const StyledRemainingBar = styled(RemainingBar)`
-  display: ${props => props.collapsed ? 'none' : 'block'};
   height: ${props => props.height};
 `;
 
@@ -30,10 +29,6 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
 
   static contextTypes = {
     intl: React.PropTypes.object.isRequired,
-  };
-
-  state = {
-    collapsed: false
   };
 
   componentDidMount() {
@@ -63,17 +58,13 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
     const commonEditableCellProps = { onUpdate: update, data, cleanData };
     const commonInEditableCellProps = { data, cleanData };
     const onProductUpdate = ({ value, rowIndex }) => update({ value, rowIndex, col: 'product' });
-    const { collapsed } = this.state;
 
-    const _containerWidth = containerWidth - (collapsed ? 64 : 200);
+    const _containerWidth = containerWidth - 200;
 
     return (
       <div>
         <StyledLayout>
-          <StyledSider
-            collapsible
-            collapsed={collapsed}
-            onCollapse={() => this.setState({ collapsed: !collapsed })}>
+          <StyledSider>
             <StyledRemainingBar height={containerHeight - 46 * 2} stockType={stockType} />
           </StyledSider>
           <StyledContent>
