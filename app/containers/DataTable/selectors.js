@@ -27,11 +27,6 @@ const selectImporting = () => createSelector(
   (substate) => substate.get('importing'),
 );
 
-const selectExporting = () => createSelector(
-  selectDataTable(),
-  (substate) => substate.get('exporting'),
-);
-
 const selectSearchVisible = () => createSelector(
   selectDataTable(),
   (substate) => substate.get('searchVisible'),

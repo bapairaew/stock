@@ -49,8 +49,12 @@ export default defineMessages({
     id: 'app.containers.ProductPage.totalProfit',
     defaultMessage: 'Total profit',
   },
-  percentage: {
-    id: 'app.containers.ProductPage.percentage',
-    defaultMessage: 'Percentage',
+  remaining: {
+    id: 'app.containers.ProductPage.remaining',
+    defaultMessage: 'Remaining',
+  },
+  saveAsExcel: {
+    id: 'app.containers.ProductPage.saveAsExcel',
+    defaultMessage: 'Save as Excel',
   },
 });

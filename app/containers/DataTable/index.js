@@ -3,12 +3,14 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { selectData, selectCleanData, selectChangedRows, selectQuery,
-  selectLoading, selectImporting, selectExporting,
+  selectLoading, selectImporting,
   selectSearchVisible, selectUploadVisible, selectError } from './selectors';
-import { addRow, save, exportRows,
+import { selectExporting } from 'containers/App/selectors';
+import { addRow, save,
   importRows, importRowsSuccess, importRowsFailure,
   searchOpen, searchClose, uploadOpen, uploadClose,
   clearError } from './actions';
+import { exportRows } from 'containers/App/actions';
 import 'fixed-data-table/dist/fixed-data-table.min.css';
 import className from '../fixedDataTableStyle';
 import { message, Spin } from 'antd';

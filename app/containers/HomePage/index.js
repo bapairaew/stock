@@ -23,7 +23,7 @@ export class HomePage extends React.PureComponent {
 
   componentDidMount() {
     const { fetch } = this.props;
-    fetch({ text: 'ชุดยาง', limit: 9 });
+    fetch({ text: 'ชุดยาง', limit: 27 });
   }
 
   render() {
@@ -35,7 +35,7 @@ export class HomePage extends React.PureComponent {
         <Helmet title={intl.formatMessage(messages.title)} />
         <StyledForm onSubmit={e => {
             e.preventDefault();
-            fetch({ text: this.props.form.getFieldValue('text'), limit: 9 })
+            fetch({ text: this.props.form.getFieldValue('text'), limit: 27 })
           }}>
           <FormItem>
             <div className={className}>

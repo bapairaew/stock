@@ -12,9 +12,6 @@ import {
   IMPORT_REQUEST,
   IMPORT_SUCCESS,
   IMPORT_FAILURE,
-  EXPORT_REQUEST,
-  EXPORT_SUCCESS,
-  EXPORT_FAILURE,
   UPLOAD_OPEN,
   UPLOAD_CLOSE,
   SEARCH_OPEN,
@@ -111,27 +108,6 @@ export function importRowsSuccess(rows) {
 export function importRowsFailure(error) {
   return {
     type: IMPORT_FAILURE,
-    error,
-  };
-}
-
-export function exportRows(rows) {
-  return {
-    type: EXPORT_REQUEST,
-    rows,
-  };
-}
-
-export function exportRowsSuccess(url) {
-  return {
-    type: EXPORT_SUCCESS,
-    url,
-  };
-}
-
-export function exportRowsFailure(error) {
-  return {
-    type: EXPORT_FAILURE,
     error,
   };
 }

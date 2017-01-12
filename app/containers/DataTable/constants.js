@@ -17,10 +17,6 @@ export const IMPORT_REQUEST = 'app/DataTable/IMPORT_REQUEST';
 export const IMPORT_SUCCESS = 'app/DataTable/IMPORT_SUCCESS';
 export const IMPORT_FAILURE = 'app/DataTable/IMPORT_FAILURE';
 
-export const EXPORT_REQUEST = 'app/DataTable/EXPORT_REQUEST';
-export const EXPORT_SUCCESS = 'app/DataTable/EXPORT_SUCCESS';
-export const EXPORT_FAILURE = 'app/DataTable/EXPORT_FAILURE';
-
 export const UPLOAD_OPEN = 'app/DataTable/UPLOAD_OPEN';
 export const UPLOAD_CLOSE = 'app/DataTable/UPLOAD_CLOSE';
 export const SEARCH_OPEN = 'app/DataTable/SEARCH_OPEN';

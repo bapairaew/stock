@@ -13,9 +13,6 @@ import {
   IMPORT_REQUEST,
   IMPORT_SUCCESS,
   IMPORT_FAILURE,
-  EXPORT_REQUEST,
-  EXPORT_SUCCESS,
-  EXPORT_FAILURE,
   UPLOAD_OPEN,
   UPLOAD_CLOSE,
   SEARCH_OPEN,
@@ -34,7 +31,6 @@ const initialState = fromJS({
   endpoint: '',
   loading: false,
   importing: false,
-  exporting: false,
   searchVisible: false,
   uploadVisible: false,
   error: null,
@@ -102,17 +98,6 @@ function dataTableReducer(state = initialState, action) {
       return state
         .set('importing', false)
         .set('uploadVisible', false);
-
-    case EXPORT_REQUEST:
-      return state
-        .set('exporting', true);
-    case EXPORT_SUCCESS:
-      return state
-        .set('exporting', false);
-    case EXPORT_FAILURE:
-      return state
-        .set('exporting', false)
-        .set('error', error);
 
     case SEARCH_OPEN:
       return state
