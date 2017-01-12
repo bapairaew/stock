@@ -8,14 +8,18 @@ import { addLocaleData } from 'react-intl';
 import { DEFAULT_LOCALE } from './containers/Root/constants'; // eslint-disable-line
 
 import enLocaleData from 'react-intl/locale-data/en';
+import thLocaleData from 'react-intl/locale-data/th';
 
 export const appLocales = [
   'en',
+  'th',
 ];
 
 import enTranslationMessages from './translations/en.json';
+import thTranslationMessages from './translations/th.json';
 
 addLocaleData(enLocaleData);
+addLocaleData(thLocaleData);
 
 export const formatTranslationMessages = (locale, messages) => {
   const defaultFormattedMessages = locale !== DEFAULT_LOCALE ? formatTranslationMessages(DEFAULT_LOCALE, enTranslationMessages) : {};
@@ -34,4 +38,5 @@ export const formatTranslationMessages = (locale, messages) => {
 
 export const translationMessages = {
   en: formatTranslationMessages('en', enTranslationMessages),
+  th: formatTranslationMessages('th', thTranslationMessages),
 };
