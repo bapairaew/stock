@@ -7,17 +7,32 @@ import qs from 'qs';
 
 import messages from './messages';
 
-const _Card = ({ ...props }) => (
-  <Card {...props} bodyStyle={{ padding: 15 }} />
+const _Card = ({ value, ...props }) => (
+  <Card {...props} bodyStyle={{ padding: 0 }} />
 );
 
-export const StyledCard = styled(_Card)`
+const StyledCard = styled(_Card)`
   width: 180px;
   margin: 9px;
+  color: rgba(255,255,255,.8);
 `;
 
-export const Remaining = styled.p`
-  color: ${props => props.value >= 0 ? '#8bc34a' : '#f00'};
+const Body = styled.div`
+  background: ${props => props.value === 0 ? '#bbb' : props.value > 0 ? '#8bc34a' : '#f44336'};
+`;
+
+const Details = styled.div`
+  padding: 15px 10px;
+`;
+
+const H4 = styled.h4`
+  font-weight: 300;
+`;
+
+const Remaining = styled.div`
+  padding: 10px;
+  background: rgba(0,0,0,.1);
+  box-shadow: 0 0 3px rgba(0,0,0,.3);
 `;
 
 class ProductCard extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -52,10 +67,14 @@ class ProductCard extends React.PureComponent { // eslint-disable-line react/pre
     const { product, diff } = this.props;
     const { stock, loading } = this.state;
     return (
-      <StyledCard loading={loading}>
-        <h3>{`${product.get('name')} (${product.get('model')})`}</h3>
-        <h4>{product.get('id')}</h4>
-        <Remaining value={stock + diff}><FormattedMessage {...messages.remaining} />: {stock + diff}</Remaining>
+      <StyledCard loading={loading} value={stock + diff}>
+        <Body value={stock + diff}>
+          <Details>
+            <h3>{`${product.get('name')} (${product.get('model')})`}</h3>
+            <H4>{product.get('id')}</H4>
+          </Details>
+          <Remaining value={stock + diff}><FormattedMessage {...messages.remaining} />: {stock + diff}</Remaining>
+        </Body>
       </StyledCard>
     );
   }

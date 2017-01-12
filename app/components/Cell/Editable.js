@@ -58,7 +58,7 @@ export const EditableNumberCell = ({ data, cleanData, rowIndex, col, onUpdate, d
   return (
     <Cell {...props} row={row} cleanData={cleanData}>
       <InputCellContainer>
-        <NumberInput type="number" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate,
+        <NumberInput type="number" min="0" getter={v => +v} {...getInputProperty({ row, cleanData, rowIndex, col, onUpdate,
             setter: v => v && v.toFixed(decimal)})} />
       </InputCellContainer>
     </Cell>
