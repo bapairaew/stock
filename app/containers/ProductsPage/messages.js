@@ -26,4 +26,8 @@ export default defineMessages({
     id: 'app.containers.ProductsPage.spare',
     defaultMessage: 'Spare',
   },
+  unsavedMessage: {
+    id: 'app.components.ProductsPage.unsavedMessage',
+    defaultMessage: 'You have unsaved information, are you sure you want to leave this page?',
+  },
 });

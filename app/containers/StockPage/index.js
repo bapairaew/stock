@@ -16,6 +16,8 @@ import { StyledLayout, StyledSider, StyledContent } from 'components/Layout';
 import styled from 'styled-components';
 import RemainingBar from './RemainingBar';
 
+import messages from './messages';
+
 const StyledRemainingBar = styled(RemainingBar)`
   display: ${props => props.collapsed ? 'none' : 'block'};
   height: ${props => props.height};
@@ -23,8 +25,6 @@ const StyledRemainingBar = styled(RemainingBar)`
 
 const safeGetNumber = value => value || 0;
 const getTotalValue = ({ row }) => row && +safeGetNumber(safeGetNumber(row.get('price')) * safeGetNumber(row.get('amount'))).toFixed(2);
-
-import messages from './messages';
 
 export class StockPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
 
@@ -69,7 +69,6 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
 
     return (
       <div>
-        <Helmet title={intl.formatMessage(messages[`${stockType}Title`])} />
         <StyledLayout>
           <StyledSider
             collapsible

@@ -127,7 +127,7 @@ export default function createRoutes(store) {
               getComponents(location, cb) {
                 const importModules = Promise.all([
                   System.import('containers/StockPage/SearchModal'),
-                  System.import('containers/StockPage'),
+                  System.import('containers/StockPage/BuyPage'),
                 ])
                 .then(([ modal, page ]) => {
                   cb(null, { searchModal: modal.default, page: page.default })

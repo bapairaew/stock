@@ -51,11 +51,15 @@ export default defineMessages({
     defaultMessage: 'Total',
   },
   spare: {
-    id: 'app.components.Modal.spare',
+    id: 'app.components.StockPage.spare',
     defaultMessage: 'Spare',
   },
   dateRange: {
-    id: 'app.components.Modal.dateRange',
+    id: 'app.components.StockPage.dateRange',
     defaultMessage: 'Date range',
+  },
+  unsavedMessage: {
+    id: 'app.components.StockPage.unsavedMessage',
+    defaultMessage: 'You have unsaved information, are you sure you want to leave this page?',
   },
 });

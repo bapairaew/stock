@@ -7,7 +7,7 @@ import { Table, Column, Cell } from 'fixed-data-table';
 import { EditableCell } from 'components/Cell/Editable';
 import { ToolCell } from 'components/Cell/Button';
 import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow } from 'containers/DataTable/actions';
-import { selectQuery, selectData, selectCleanData } from 'containers/DataTable/selectors';
+import { selectQuery, selectData, selectCleanData, selectChangedRows } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
 import GetContainerDimensions from 'react-dimensions';
 
@@ -24,6 +24,17 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
     setEndpoint('/api/v0/products');
     fetch({ text: '' });
     setNewRow(() => fromJS({ id: '', name: '', model: '' }));
+  }
+
+  componentWillMount() {
+    this.props.router.setRouteLeaveHook(
+      this.props.route,
+      () => {
+        if (this.props.changedRows.count() > 0) {
+          return this.context.intl.formatMessage(messages.unsavedMessage);
+        }
+      }
+    );
   }
 
   render() {
@@ -67,6 +78,7 @@ const mapStateToProps = createStructuredSelector({
   query: selectQuery(),
   data: selectData(),
   cleanData: selectCleanData(),
+  changedRows: selectChangedRows(),
 });
 
 function mapDispatchToProps(dispatch) {

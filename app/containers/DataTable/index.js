@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
-import { selectData, selectCleanData, selectQuery,
+import { selectData, selectCleanData, selectChangedRows, selectQuery,
   selectLoading, selectImporting, selectExporting,
   selectSearchVisible, selectUploadVisible, selectError } from './selectors';
 import { addRow, save, exportRows,
@@ -26,14 +26,10 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
     intl: React.PropTypes.object.isRequired,
   };
 
-  getChangedRows() {
-    const { data, cleanData } = this.props;
-    return data.filter((r, i) => r !== cleanData.get(i));
-  }
-
   render() {
     const { searchModal, page, containerWidth, containerHeight,
-      data, cleanData, query, loading, importing, exporting, error,
+      data, cleanData, changedRows,
+      query, loading, importing, exporting, error,
       add, save, exportRows,
       importRows, importRowsSuccess, importRowsFailure,
       searchOpen, searchClose, uploadOpen, uploadClose,
@@ -62,7 +58,7 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
               <ToolBar
                 add={() => { message.info(intl.formatMessage(messages.addRowMessage)); add() }}
                 query={query}
-                save={() => save(this.getChangedRows())}
+                save={() => save(changedRows)}
                 search={searchOpen}
                 importRows={uploadOpen}
                 exportRows={() => exportRows(data)}
@@ -81,6 +77,7 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
 const mapStateToProps = createStructuredSelector({
   data: selectData(),
   cleanData: selectCleanData(),
+  changedRows: selectChangedRows(),
   query: selectQuery(),
   loading: selectLoading(),
   importing: selectImporting(),
