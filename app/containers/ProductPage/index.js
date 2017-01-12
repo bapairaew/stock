@@ -17,7 +17,7 @@ import className from '../fixedDataTableStyle';
 import messages from './messages';
 
 const Header = styled.div`
-  height: 200px;
+  height: 250px;
   width: 100%;
   text-align: center;
   color: rgba(255,255,255,.9);
@@ -39,6 +39,7 @@ const H3 = styled.h3`
 
 const H5 = styled.h5`
   font-weight: 100;
+  margin-top: 20px;
   display: ${props => props.visible ? 'block' : 'none'};
   color: ${props => props.value === 0 ? '#bbb' : props.value > 0 ? '#8bc34a' : '#f44336'};
 `;
@@ -87,7 +88,7 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
           <div className={className}>
             <Table
               width={containerWidth}
-              height={containerHeight - 46 - 200}
+              height={containerHeight - 46 - 250}
               rowsCount={data.count()}
               headerHeight={30}
               rowHeight={30}>
