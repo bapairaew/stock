@@ -136,11 +136,12 @@ export default function createRoutes(store) {
               stockType: 'sell',
               getComponents(location, cb) {
                 const importModules = Promise.all([
+                  System.import('containers/StockPage/UploadForm'),
                   System.import('containers/StockPage/SearchModal'),
                   System.import('containers/StockPage/SellPage'),
                 ])
-                .then(([ modal, page ]) => {
-                  cb(null, { searchModal: modal.default, page: page.default })
+                .then(([ form, modal, page ]) => {
+                  cb(null, { uploadForm: form.default, searchModal: modal.default, page: page.default })
                 });
               },
             },
@@ -150,11 +151,12 @@ export default function createRoutes(store) {
               stockType: 'buy',
               getComponents(location, cb) {
                 const importModules = Promise.all([
+                  System.import('containers/StockPage/UploadForm'),
                   System.import('containers/StockPage/SearchModal'),
                   System.import('containers/StockPage/BuyPage'),
                 ])
-                .then(([ modal, page ]) => {
-                  cb(null, { searchModal: modal.default, page: page.default })
+                .then(([ form, modal, page ]) => {
+                  cb(null, { uploadForm: form.default, searchModal: modal.default, page: page.default })
                 });
               },
             },

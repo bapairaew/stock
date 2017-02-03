@@ -3,24 +3,20 @@ import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
-import { Table, Column, Cell } from 'fixed-data-table';
+import { Table, Column, Cell } from 'fixed-data-table-2';
 import { TextCell, NumberCell } from 'components/Cell/InEditable';
 import { EditableCell, EditableAutoCompleteCell, EditableNumberCell, EditableDateCell } from 'components/Cell/Editable';
 import { ToolCell } from 'components/Cell/Button';
-import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow } from 'containers/DataTable/actions';
+import { setExportingParams } from 'containers/App/actions';
+import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setImporter } from 'containers/DataTable/actions';
 import { selectQuery, selectData, selectCleanData } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
 import moment from 'moment';
 import GetContainerDimensions from 'react-dimensions';
 import { StyledLayout, StyledSider, StyledContent } from 'components/Layout';
-import styled from 'styled-components';
 import RemainingBar from './RemainingBar';
 
 import messages from './messages';
-
-const StyledRemainingBar = styled(RemainingBar)`
-  height: ${props => props.height};
-`;
 
 const safeGetNumber = value => value || 0;
 const getTotalValue = ({ row }) => row && +safeGetNumber(safeGetNumber(row.get('price')) * safeGetNumber(row.get('amount'))).toFixed(2);
@@ -32,7 +28,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
   };
 
   componentDidMount() {
-    const { query, fetch, setEndpoint, route: { stockType }, setNewRow } = this.props;
+    const { query, fetch, setEndpoint, route: { stockType }, setNewRow, setImporter, setExportingParams } = this.props;
     setNewRow(() => fromJS({
       _id: null,
       order: 0,
@@ -43,11 +39,29 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       price: 0,
     }));
     setEndpoint(`/api/v0/stock/${stockType}`);
+    setImporter((rows, form) => rows.map(row => fromJS({
+      receiptId: form && form.receiptId,
+      date: new Date(),
+      ...row,
+    })));
     fetch({
       text: '',
       receiptId: '',
       startDate: moment().subtract(30, 'days').startOf('day').toDate(),
       endDate: moment().endOf('day').toDate()
+    });
+    setExportingParams({
+      fields: [
+        'order',
+        { fields: ['date'], opt: 'date' },
+        'receiptId',
+        ['product', 'id'],
+        ['product', 'name'],
+        ['product', 'model'],
+        'amount',
+        'price',
+        { fields: ['amount', 'price'], opt: '*' },
+      ]
     });
   }
 
@@ -65,7 +79,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       <div>
         <StyledLayout>
           <StyledSider>
-            <StyledRemainingBar height={containerHeight - 46 * 2} stockType={stockType} />
+            <RemainingBar height={containerHeight - 46 * 2} stockType={stockType} />
           </StyledSider>
           <StyledContent>
             <Table
@@ -73,7 +87,8 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
               height={containerHeight - 46 * 2}
               rowsCount={data.count()}
               headerHeight={30}
-              rowHeight={30}>
+              rowHeight={30}
+              scrollToRow={data.count() - 1}>
               <Column
                 header={<Cell></Cell>}
                 cell={<ToolCell data={data} remove={remove} revertRemove={revertRemove} />}
@@ -137,6 +152,8 @@ function mapDispatchToProps(dispatch) {
     revertRemove: rowIndex => dispatch(revertRemoveRow(rowIndex)),
     setEndpoint: endpoint => dispatch(setEndpoint(endpoint)),
     setNewRow: newRow => dispatch(setNewRow(newRow)),
+    setImporter: importer => dispatch(setImporter(importer)),
+    setExportingParams: params => dispatch(setExportingParams(params)),
   };
 }
 

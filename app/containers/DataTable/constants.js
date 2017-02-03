@@ -24,3 +24,4 @@ export const SEARCH_CLOSE = 'app/DataTable/SEARCH_CLOSE';
 
 export const SET_ENDPOINT = 'app/DataTable/SET_ENDPOINT';
 export const SET_NEW_ROW = 'app/DataTable/SET_NEW_ROW';
+export const SET_IMPORTER = 'app/DataTable/SET_IMPORTER';

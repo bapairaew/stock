@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { Button, Modal, Form, Input, Icon, Upload, Spin, message } from 'antd';
 import ModalFooter from 'components/ModalFooter';
 import SpinTip from 'components/SpinTip';
+import { omit } from 'utils/obj';
 
 import messages from './messages';
 
@@ -50,27 +51,32 @@ const DraggerContainer = styled.div`
   height: 200px;
 `;
 
-export const UploadModal = ({ intl, action, visible, uploading, start, success, failed, cancel }) => (
+const getFormValue = (form) => {
+  return omit((form && form.getFieldsValue()) || {}, value => value);
+};
+
+export const UploadModal = ({ intl, children, action, visible, uploading, start, success, failed, cancel }) => (
   <Modal
     title={<FormattedMessage {...messages.uploadAFile} />}
     visible={visible}
     onCancel={cancel}
     footer={<Button key="cancel" type="ghost" onClick={cancel}><FormattedMessage {...messages.cancel} /></Button>}>
     <Spin size="large" spinning={uploading} tip={<SpinTip />}>
+      {children && React.cloneElement(children, { ref: e => this._form = e })}
       <DraggerContainer>
         <Dragger
           {...uploadProps}
           action={action}
-          onChange={(info) => {
+          onChange={info => {
             const { file: { status, response, error } } = info;
             if (status === 'uploading') {
               start();
             } else if (status === 'done') {
-              message.success(intl.formatMessage(messages.importSuccessMessage, { numberOfRows: response.length }), 3);
-              success(response);
+              message.success(intl.formatMessage(messages.importSuccessMessage, { numberOfRows: response.rows.length }), 3);
+              setTimeout(() => success({ ...response, ...getFormValue(this._form) }), 100);
             } else if (status === 'error') {
               message.error(intl.formatMessage(messages.importFailureMessage, { error: error + '' }), 3);
-              failed(error);
+              setTimeout(() => failed(error), 100);
             }
           }}>
           <p className="ant-upload-drag-icon">

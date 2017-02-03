@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cell } from 'fixed-data-table';
+import { Cell } from 'fixed-data-table-2';
 import styled from 'styled-components';
 import { getInEditableCellBackground } from './Color';
 import moment from 'moment';

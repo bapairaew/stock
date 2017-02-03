@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cell } from 'fixed-data-table';
+import { Cell } from 'fixed-data-table-2';
 import { Button } from 'antd';
 
 const ToolButton = ({ removed, rowIndex, remove, revertRemove }) => (

@@ -1,6 +1,11 @@
 const express = require('express');
+const multer  = require('multer');
+const upload = multer({ dest: '__temp/' });
 const router = new express.Router();
 
+const { parseWorkbook } = require('../utils/products');
+const { read } = require('../utils/xlsx');
+const { remove } = require('../utils/file');
 const { join, flatten } = require('../utils/array');
 const { log } = require('../utils/log');
 const { classify, parseResults } = require('../utils/transformer');
@@ -92,6 +97,12 @@ router.post('/save', isAuthenticated, (req, res) => {
   ))
   .then(results => res.status(200).json(parseResults(results, { news, changes, removes })))
   .catch(err => res.status(500).send(log(err)));
+});
+
+router.post('/import', isAuthenticated, upload.single('file'), (req, res) => {
+  const { path } = req.file;
+  res.status(200).json({ rows: parseWorkbook(read(path)) });
+  remove(path);
 });
 
 module.exports = router;

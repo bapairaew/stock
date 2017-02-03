@@ -1,52 +1,66 @@
 const express = require('express');
 const router = new express.Router();
-const multer  = require('multer');
-const upload = multer({ dest: '__temp/' });
-const path = require('path');
 const fs = require('fs');
-const XLSX = require('XLSX');
-const settings = require('../../settings');
-const { sheetFromArray } = require('../utils/xlsxHelper');
+const { generateFile } = require('../utils/xlsx');
 const { isAuthenticated } = require('../utils/auth');
+const { name, temp, remove } = require('../utils/file');
+const { get } = require('../utils/obj');
+const { log } = require('../utils/log');
 
-const generateFile = () => {
-  const id = Math.floor(Math.random() * 100000000000) + '';
-  XLSX.writeFile({
-      SheetNames: ['Sheet 1'],
-      Sheets: { 'Sheet 1': sheetFromArray([['Hello World!']]) },
-    },
-    getExportPath(id));
-  return id;
+const opt = (values, opt) => {
+  const [ a, b ] = values;
+  switch (opt) {
+    case '+':
+      return a + b;
+    case '-':
+      return a - b;
+    case '*':
+      return a * b;
+    case '/':
+      return a / b;
+    case 'date':
+      return new Date(a);
+    default:
+      return null;
+  }
 };
 
-const getExportPath = (id) => path.join(settings.temp, id);
+const toArray = (rows, fields) => {
+  return rows.map(r => {
+    return fields.map(f => {
+      if (!f) {
+        return null;
+      } else if (typeof f === 'string') {
+        return r[f];
+      } else if (Array.isArray(f)) {
+        return get(r, `.${f.join('.')}`);
+      } else if (f.fields && f.opt) {
+        return opt(f.fields.map(ff => r[ff]), f.opt);
+      } else {
+        return null;
+      }
+    });
+  });
+};
 
 router.post('/export', isAuthenticated, (req, res) => {
-  setTimeout(() => {
-    res.json({ url: `/api/v0/stock/download/${generateFile()}.xlsx` });
-  }, 5000);
+  const { rows, params: { fields } } = req.body;
+  res.json({ url: `/api/v0/misc/download/${generateFile(toArray(rows, fields))}.xlsx` });
 });
 
-router.post('/import', isAuthenticated, upload.single('file'), (req, res) => {
-  setTimeout(() => {
-    res.status(200).json([{}]);
-  }, 5000);
-});
-
-const getId = (filename) => path.basename(filename, '.xlsx');
+const getId = filename => name(filename);
 
 router.get('/download/:filename', isAuthenticated, (req, res) => {
   try {
-    const { params: { filename } } = req;
-    const filepath = getExportPath(getId(filename));
-    const file = fs.createReadStream(filepath);
-    file.on('end', function() {
-      fs.unlink(filepath, () => {});
-    });
     res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    file.pipe(res);
+    const { params: { filename } } = req;
+    const filepath = temp(getId(filename));
+    const file = fs.createReadStream(filepath);
+    file.pipe(res)
+      .on('close', () => remove(filepath))
+      .on('error', err => log(err));
   } catch (ex) {
-    res.status(500).send(ex);
+    res.status(500).send(log(ex));
   }
 });
 

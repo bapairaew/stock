@@ -1,6 +1,12 @@
 const express = require('express');
+const multer  = require('multer');
+const upload = multer({ dest: '__temp/' });
 const router = new express.Router();
 
+const { populate } = require('../utils/products');
+const { parseWorkbook } = require('../utils/stock');
+const { read } = require('../utils/xlsx');
+const { name, remove } = require('../utils/file');
 const { join } = require('../utils/array');
 const { log } = require('../utils/log');
 const { classify, parseResults } = require('../utils/transformer');
@@ -65,5 +71,16 @@ router.post('/sell/save', isAuthenticated, (req, res) => {
 router.post('/buy/save', isAuthenticated, (req, res) => {
   saveAll(Buy, req.body, res);
 });
+
+const _import = (req, res) => {
+  const { path, originalname } = req.file;
+  populate(parseWorkbook(read(path)))
+    .then(results => res.status(200).json({ rows: results, receiptId: name(originalname) }))
+    .catch(err => res.status(500).json(log({ error: err })));
+  remove(path);
+};
+
+router.post('/sell/import', isAuthenticated, upload.single('file'), _import);
+router.post('/buy/import', isAuthenticated, upload.single('file'), _import);
 
 module.exports = router;

@@ -20,6 +20,7 @@ import {
   CLEAR_ERROR,
   SET_ENDPOINT,
   SET_NEW_ROW,
+  SET_IMPORTER,
 } from './constants';
 import { LOCATION_CHANGE } from 'react-router-redux';
 
@@ -28,6 +29,7 @@ const initialData = [];
 const initialState = fromJS({
   query: {},
   newRow: () => null,
+  importer: rows => rows.map(r => fromJS(r)),
   endpoint: '',
   loading: false,
   importing: false,
@@ -39,9 +41,10 @@ const initialState = fromJS({
 });
 
 function dataTableReducer(state = initialState, action) {
-  const { value, rowIndex, col, data, query, error, rows, url, endpoint, newRow, addedRows } = action;
+  const { type, value, rowIndex, col, data, query, error, rows, url, endpoint, newRow, addedRows, importer, ...props } = action;
   const _data = fromJS(data);
-  switch (action.type) {
+
+  switch (type) {
     case UPDATE_ROW:
       return state
         .setIn(['data', rowIndex].concat(col), fromJS(value));
@@ -93,7 +96,8 @@ function dataTableReducer(state = initialState, action) {
     case IMPORT_SUCCESS:
       return state
         .set('importing', false)
-        .set('uploadVisible', false);
+        .set('uploadVisible', false)
+        .update('data', arr => arr.concat(state.get('importer')(rows, props)));
     case IMPORT_FAILURE:
       return state
         .set('importing', false)
@@ -123,6 +127,11 @@ function dataTableReducer(state = initialState, action) {
     case SET_NEW_ROW:
       return state
         .set('newRow', newRow);
+
+    case SET_IMPORTER:
+      return state
+        .set('importer', importer);
+
     default:
       return state;
   }

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { selectData, selectCleanData, selectChangedRows, selectQuery,
-  selectLoading, selectImporting,
+  selectLoading, selectImporting, selectEndpoint,
   selectSearchVisible, selectUploadVisible, selectError } from './selectors';
 import { selectExporting } from 'containers/App/selectors';
 import { addRow, save,
@@ -11,7 +11,7 @@ import { addRow, save,
   searchOpen, searchClose, uploadOpen, uploadClose,
   clearError } from './actions';
 import { exportRows } from 'containers/App/actions';
-import 'fixed-data-table/dist/fixed-data-table.min.css';
+import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import className from '../fixedDataTableStyle';
 import { message, Spin } from 'antd';
 import { StyledContent } from 'components/Layout';
@@ -29,10 +29,11 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
   };
 
   render() {
-    const { searchModal, page, containerWidth, containerHeight,
+    const { searchModal, uploadForm,
+      page, containerWidth, containerHeight,
       data, cleanData, changedRows,
       query, loading, importing, exporting, error,
-      add, save, exportRows,
+      add, save, exportRows, endpoint,
       importRows, importRowsSuccess, importRowsFailure,
       searchOpen, searchClose, uploadOpen, uploadClose,
       searchVisible, uploadVisible,
@@ -46,14 +47,16 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
         {searchModal}
         <UploadModal
           intl={intl}
-          action="/api/v0/misc/import"
+          action={`${endpoint}/import`}
           uploading={importing}
           start={importRows}
           success={importRowsSuccess}
           failed={importRowsFailure}
           cancel={uploadClose}
           finished={uploadClose}
-          visible={uploadVisible} />
+          visible={uploadVisible}>
+          {uploadForm}
+        </UploadModal>
         <Spin size="large" spinning={loading} tip={<SpinTip />}>
           <StyledLayout>
             <SubHeader>
@@ -87,6 +90,7 @@ const mapStateToProps = createStructuredSelector({
   searchVisible: selectSearchVisible(),
   uploadVisible: selectUploadVisible(),
   error: selectError(),
+  endpoint: selectEndpoint(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -94,7 +98,7 @@ function mapDispatchToProps(dispatch) {
     save: rows => dispatch(save(rows)),
     exportRows: rows => dispatch(exportRows(rows)),
     importRows: () => dispatch(importRows()),
-    importRowsSuccess: rows => dispatch(importRowsSuccess(rows)),
+    importRowsSuccess: results => dispatch(importRowsSuccess(results)),
     importRowsFailure: error => dispatch(importRowsFailure(error)),
     add: () => dispatch(addRow()),
     searchOpen: () => dispatch(searchOpen()),

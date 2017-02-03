@@ -1,7 +1,15 @@
 const XLSX = require('XLSX');
+const { temp } = require('../utils/file');
 
 // view-source:http://sheetjs.com/demos/writexlsx.html
-exports.sheetFromArray = function (data, opts) {
+function datenum(v, date1904) {
+	if(date1904) v+=1462;
+	var epoch = Date.parse(v);
+	return (epoch - new Date(Date.UTC(1899, 11, 30))) / (24 * 60 * 60 * 1000);
+}
+
+// view-source:http://sheetjs.com/demos/writexlsx.html
+function fromArray(data) {
 	var ws = {};
 	var range = {s: {c:10000000, r:10000000}, e: {c:0, r:0 }};
 	for(var R = 0; R != data.length; ++R) {
@@ -27,4 +35,18 @@ exports.sheetFromArray = function (data, opts) {
 	}
 	if(range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
 	return ws;
+};
+
+exports.generateFile = function (data) {
+  const id = Math.floor(Math.random() * 100000000000) + '';
+  XLSX.writeFile({
+      SheetNames: ['Sheet 1'],
+      Sheets: { 'Sheet 1': fromArray(data) },
+    },
+    temp(id));
+  return id;
+};
+
+exports.read = function (path) {
+	return XLSX.readFile(path);
 };

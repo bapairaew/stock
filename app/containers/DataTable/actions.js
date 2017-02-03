@@ -19,6 +19,7 @@ import {
   CLEAR_ERROR,
   SET_ENDPOINT,
   SET_NEW_ROW,
+  SET_IMPORTER,
 } from './constants';
 
 export function updateRow({ value, rowIndex, col }) {
@@ -98,10 +99,10 @@ export function importRows() {
   };
 }
 
-export function importRowsSuccess(rows) {
+export function importRowsSuccess(results) {
   return {
     type: IMPORT_SUCCESS,
-    rows,
+    ...results,
   };
 }
 
@@ -153,5 +154,12 @@ export function setNewRow(newRow) {
   return {
     type: SET_NEW_ROW,
     newRow,
+  };
+}
+
+export function setImporter(importer) {
+  return {
+    type: SET_IMPORTER,
+    importer,
   };
 }

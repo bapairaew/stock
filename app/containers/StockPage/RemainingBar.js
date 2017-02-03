@@ -8,7 +8,7 @@ import { fromJS } from 'immutable';
 
 const CardContainer = styled.div`
   overflow: auto;
-  height: 100%;
+  height: ${props => `${props.height}px` || '100%'};
 `;
 
 const getDirection = (stockType) => (stockType === 'buy' ? 1 : -1);
@@ -20,7 +20,7 @@ export class RemainingBar extends React.PureComponent {
   }
 
   render() {
-    const { data, cleanData, changedRows, stockType } = this.props;
+    const { data, cleanData, changedRows, stockType, height } = this.props;
     const products = changedRows
       .filter(r => r.getIn(['product', '_id']))
       // TODO: optimise this??
@@ -70,7 +70,7 @@ export class RemainingBar extends React.PureComponent {
       });
 
     return (
-      <CardContainer>
+      <CardContainer height={height}>
         {products.map((p, i) => <ProductCard key={i} endpoint={p => `/api/v0/products/sum/${p.get('_id')}`} {...p} />)}
       </CardContainer>
     );

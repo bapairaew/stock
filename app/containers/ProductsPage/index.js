@@ -3,9 +3,10 @@ import { createStructuredSelector } from 'reselect';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { FormattedMessage } from 'react-intl';
-import { Table, Column, Cell } from 'fixed-data-table';
+import { Table, Column, Cell } from 'fixed-data-table-2';
 import { EditableCell } from 'components/Cell/Editable';
 import { ToolCell } from 'components/Cell/Button';
+import { setExportingParams } from 'containers/App/actions';
 import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow } from 'containers/DataTable/actions';
 import { selectQuery, selectData, selectCleanData, selectChangedRows } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
@@ -20,10 +21,17 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
   };
 
   componentDidMount() {
-    const { query, fetch, setNewRow, setEndpoint } = this.props;
+    const { query, fetch, setNewRow, setEndpoint, setExportingParams } = this.props;
     setEndpoint('/api/v0/products');
     fetch({ text: '' });
     setNewRow(() => fromJS({ id: '', name: '', model: '' }));
+    setExportingParams({
+      fields: [
+        'id',
+        'name',
+        'model',
+      ]
+    });
   }
 
   componentWillMount() {
@@ -89,6 +97,7 @@ function mapDispatchToProps(dispatch) {
     revertRemove: rowIndex => dispatch(revertRemoveRow(rowIndex)),
     setEndpoint: endpoint => dispatch(setEndpoint(endpoint)),
     setNewRow: newRow => dispatch(setNewRow(newRow)),
+    setExportingParams: params => dispatch(setExportingParams(params)),
   };
 }
 

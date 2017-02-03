@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { ErrorBox, SubHeader } from 'components/Layout';
 import styled from 'styled-components';
-import { Table, Column, Cell } from 'fixed-data-table';
+import { Table, Column, Cell } from 'fixed-data-table-2';
 import { TextCell, NumberCell, DateCell } from 'components/Cell/InEditable';
 import { FormattedMessage } from 'react-intl';
 import { selectProduct, selectSell, selectBuy, selectLoading, selectError } from './selectors';
@@ -13,7 +13,7 @@ import { fetchProduct } from './actions';
 import { exportRows } from 'containers/App/actions';
 import { Button, Spin } from 'antd';
 import GetContainerDimensions from 'react-dimensions';
-import 'fixed-data-table/dist/fixed-data-table.min.css';
+import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import className from '../fixedDataTableStyle';
 
 import messages from './messages';

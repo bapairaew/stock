@@ -105,3 +105,8 @@ if (!window.Intl) {
 // we do not want it installed
 import { install } from 'offline-plugin/runtime';
 install();
+
+if (process.env.NODE_ENV !== 'production') {
+  const Perf = require('react-addons-perf');
+  window.Perf = Perf;
+}
