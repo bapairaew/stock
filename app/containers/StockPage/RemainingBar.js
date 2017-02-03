@@ -16,11 +16,11 @@ const getDirection = (stockType) => (stockType === 'buy' ? 1 : -1);
 export class RemainingBar extends React.PureComponent {
 
   shouldComponentUpdate(newProps) {
-    return this.props.changedRows !== newProps.changedRows;
+    return this.props.changedRows !== newProps.changedRows || this.props.editingProduct !== newProps.editingProduct;
   }
 
   render() {
-    const { data, cleanData, changedRows, stockType, height } = this.props;
+    const { data, cleanData, changedRows, stockType, height, editingProduct } = this.props;
     const products = changedRows
       .filter(r => r.getIn(['product', '_id']))
       // TODO: optimise this??
@@ -71,7 +71,7 @@ export class RemainingBar extends React.PureComponent {
 
     return (
       <CardContainer height={height}>
-        {products.map((p, i) => <ProductCard key={i} endpoint={p => `/api/v0/products/sum/${p.get('_id')}`} {...p} />)}
+        {products.map((p, i) => <ProductCard key={i} focused={editingProduct && editingProduct.get('_id') === p.product.get('_id')} endpoint={p => `/api/v0/products/sum/${p.get('_id')}`} {...p} />)}
       </CardContainer>
     );
   }

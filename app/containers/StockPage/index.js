@@ -22,6 +22,9 @@ const safeGetNumber = value => value || 0;
 const getTotalValue = ({ row }) => row && +safeGetNumber(safeGetNumber(row.get('price')) * safeGetNumber(row.get('amount'))).toFixed(2);
 
 export class StockPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  state = {
+    editingProduct: null
+  };
 
   static contextTypes = {
     intl: React.PropTypes.object.isRequired,
@@ -67,9 +70,11 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
 
   render() {
     const { intl } = this.context;
+    const { editingProduct } = this.state;
     const { containerWidth, containerHeight, route: { stockType },
       data, cleanData, remove, revertRemove, update } = this.props;
-    const commonEditableCellProps = { onUpdate: update, data, cleanData };
+    const commonEditableCellProps = { onEditing: r => this.setState({ editingProduct: r.get('product') }),
+      onUpdate: update, data, cleanData };
     const commonInEditableCellProps = { data, cleanData };
     const onProductUpdate = ({ value, rowIndex }) => update({ value, rowIndex, col: 'product' });
 
@@ -79,7 +84,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       <div>
         <StyledLayout>
           <StyledSider>
-            <RemainingBar height={containerHeight - 46 * 2} stockType={stockType} />
+            <RemainingBar editingProduct={editingProduct} height={containerHeight - 46 * 2} stockType={stockType} />
           </StyledSider>
           <StyledContent>
             <Table

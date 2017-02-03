@@ -7,9 +7,9 @@ export class _Cell extends React.PureComponent {
   }
 
   render() {
-    const { row, cleanData, ...props } = this.props;
+    const { row, cleanData, onEditing, ...props } = this.props;
     return (
-      <Cell {...props} />
+      <Cell {...props} onClick={() => onEditing(row)} />
     );
   }
 }
