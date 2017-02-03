@@ -17,7 +17,7 @@ const StyledCard = styled(_Card)`
   margin: 9px;
   color: rgba(255,255,255,.8);
   box-shadow: ${props => props.focused ? '0 0 10px rgba(0,0,0,.5)' : ''};
-  transform: ${props => props.focused ? 'scale(1.2)' : 'scale(1)'};
+  transform: ${props => props.focused ? 'scale(1.1)' : 'scale(1)'};
   z-index: ${props => props.focused ? 999 : 1};
 `;
 

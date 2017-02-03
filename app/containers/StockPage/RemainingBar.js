@@ -16,7 +16,9 @@ const getDirection = (stockType) => (stockType === 'buy' ? 1 : -1);
 export class RemainingBar extends React.PureComponent {
 
   shouldComponentUpdate(newProps) {
-    return this.props.changedRows !== newProps.changedRows || this.props.editingProduct !== newProps.editingProduct;
+    return this.props.changedRows !== newProps.changedRows ||
+      this.props.editingProduct !== newProps.editingProduct ||
+      this.props.height !== newProps.height;
   }
 
   render() {

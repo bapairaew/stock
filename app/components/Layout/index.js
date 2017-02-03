@@ -6,6 +6,14 @@ export const StyledLayout = styled(_Layout)`
   background: #fff !important;
 `;
 
+// fix layout with side bar in chrome windows is broken (.ant-layout.ant-layout-has-sider is not added)
+export const StyledLayoutWithSideBar = styled(StyledLayout)`
+  -webkit-box-orient: horizontal !important;
+  -webkit-box-direction: normal !important;
+  -ms-flex-direction: row !important;
+  flex-direction: row !important;
+`;
+
 export const StyledHeader = styled(Layout.Header)`
   padding: 0 !important;
   height: 46px !important;

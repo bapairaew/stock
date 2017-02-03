@@ -13,7 +13,7 @@ import { selectQuery, selectData, selectCleanData } from 'containers/DataTable/s
 import { fromJS } from 'immutable';
 import moment from 'moment';
 import GetContainerDimensions from 'react-dimensions';
-import { StyledLayout, StyledSider, StyledContent } from 'components/Layout';
+import { StyledLayoutWithSideBar, StyledSider, StyledContent } from 'components/Layout';
 import RemainingBar from './RemainingBar';
 
 import messages from './messages';
@@ -82,7 +82,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
 
     return (
       <div>
-        <StyledLayout>
+        <StyledLayoutWithSideBar>
           <StyledSider>
             <RemainingBar editingProduct={editingProduct} height={containerHeight - 46 * 2} stockType={stockType} />
           </StyledSider>
@@ -137,7 +137,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
                 width={100} />
             </Table>
           </StyledContent>
-        </StyledLayout>
+        </StyledLayoutWithSideBar>
       </div>
     );
   }
