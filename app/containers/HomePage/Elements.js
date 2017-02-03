@@ -54,7 +54,7 @@ export const H3 = styled.h3`
 `;
 
 export const Number = styled.p`
-  font-size: 50px;
+  font-size: 35px;
 `;
 
 export const Remaining = styled.div`
