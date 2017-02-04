@@ -12,14 +12,23 @@ import { createSelector } from 'reselect';
 import { IntlProvider } from 'react-intl';
 import { selectLocale } from './selectors';
 import moment from 'moment';
+import { LocaleProvider } from 'antd';
+
+import enUS from 'antd/lib/locale-provider/en_US';
+import thTH from './th_TH';
+
+import 'moment/locale/th';
 
 export class LanguageProvider extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
-    moment.locale(this.props.locale);
+    const { locale, children, messages } = this.props;
+    moment.locale(locale);
     return (
-      <IntlProvider locale={this.props.locale} key={this.props.locale} messages={this.props.messages[this.props.locale]}>
-        {React.Children.only(this.props.children)}
-      </IntlProvider>
+      <LocaleProvider locale={locale === 'th' ? thTH : enUS}>
+        <IntlProvider locale={locale} key={locale} messages={messages[locale]}>
+          {React.Children.only(children)}
+        </IntlProvider>
+      </LocaleProvider>
     );
   }
 }

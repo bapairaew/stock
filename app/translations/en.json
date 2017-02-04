@@ -6,6 +6,7 @@
   "app.components.Modal.importSuccessMessage": "{numberOfRows} row(s) is imported.",
   "app.components.Modal.search": "Search",
   "app.components.Modal.uploadAFile": "Upload a file",
+  "app.components.Modal.uploadMessage": "Click or drag file to this area to upload.",
   "app.components.ModalFooter.cancel": "Cancel",
   "app.components.ModalFooter.submit": "Submit",
   "app.components.Nav.buy": "Buy",

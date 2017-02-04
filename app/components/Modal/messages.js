@@ -34,4 +34,8 @@ export default defineMessages({
     id: 'app.components.Modal.importFailureMessage',
     defaultMessage: 'Fail to import rows: {error}.',
   },
+  uploadMessage: {
+    id: 'app.components.Modal.uploadMessage',
+    defaultMessage: 'Click or drag file to this area to upload.',
+  },
 });

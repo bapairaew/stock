@@ -82,7 +82,7 @@ export const UploadModal = ({ intl, children, action, visible, uploading, start,
           <p className="ant-upload-drag-icon">
             <Icon type="inbox" />
           </p>
-          <p className="ant-upload-text">Click or drag file to this area to upload</p>
+          <p className="ant-upload-text"><FormattedMessage {...messages.uploadMessage} /></p>
         </Dragger>
       </DraggerContainer>
     </Spin>
