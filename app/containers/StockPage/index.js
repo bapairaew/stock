@@ -44,7 +44,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
     setEndpoint(`/api/v0/stock/${stockType}`);
     setImporter((rows, form) => rows.map(row => fromJS({
       receiptId: form && form.receiptId,
-      date: new Date(),
+      date: (form && form.date) || new Date(),
       ...row,
     })));
     fetch({
