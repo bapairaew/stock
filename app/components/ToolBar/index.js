@@ -18,16 +18,27 @@ const RightMenu = styled.div`
   text-align: right;
 `;
 
+const Separator = styled.div`
+  width: 1px;
+  height: 50%;
+  margin: 0 9px 0 0px;
+  background: rgba(0,0,0,.1);
+`;
+
 const _Button = Button;
 const StyledButton = styled(_Button)`
   margin-right: 10px;
 `;
 
-export const ToolBar = ({ query, add, save, search, importRows, exportRows, exporting }) => (
+export const ToolBar = ({ query, add, save, edit, search, importRows, exportRows, exporting }) => (
   <ToolBarContainer>
     <StyledButton type="primary" icon="save" onClick={save}><FormattedMessage {...messages.save} /></StyledButton>
+    <Separator />
     <StyledButton type="primary" icon="plus-circle-o" onClick={add}><FormattedMessage {...messages.add} /></StyledButton>
     <StyledButton type="primary" icon="addfolder" onClick={importRows}><FormattedMessage {...messages.import} /></StyledButton>
+    <Separator />
+    <StyledButton type="primary" icon="edit" onClick={edit}><FormattedMessage {...messages.edit} /></StyledButton>
+    <Separator />
     <StyledButton type="primary" icon="file-excel" loading={exporting} onClick={exportRows}><FormattedMessage {...messages.saveAsExcel} /></StyledButton>
     <RightMenu>
       <SearchDescription query={query} />

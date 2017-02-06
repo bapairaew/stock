@@ -138,10 +138,11 @@ export default function createRoutes(store) {
                 const importModules = Promise.all([
                   System.import('containers/StockPage/UploadForm'),
                   System.import('containers/StockPage/SearchModal'),
+                  System.import('containers/StockPage/EditModal'),
                   System.import('containers/StockPage/SellPage'),
                 ])
-                .then(([ form, modal, page ]) => {
-                  cb(null, { uploadForm: form.default, searchModal: modal.default, page: page.default })
+                .then(([ form, searchModal, editModal, page ]) => {
+                  cb(null, { uploadForm: form.default, searchModal: searchModal.default, editModal: editModal.default, page: page.default })
                 });
               },
             },
@@ -153,10 +154,11 @@ export default function createRoutes(store) {
                 const importModules = Promise.all([
                   System.import('containers/StockPage/UploadForm'),
                   System.import('containers/StockPage/SearchModal'),
+                  System.import('containers/StockPage/EditModal'),
                   System.import('containers/StockPage/BuyPage'),
                 ])
-                .then(([ form, modal, page ]) => {
-                  cb(null, { uploadForm: form.default, searchModal: modal.default, page: page.default })
+                .then(([ form, searchModal, editModal, page ]) => {
+                  cb(null, { uploadForm: form.default, searchModal: searchModal.default, editModal: editModal.default, page: page.default })
                 });
               },
             },
@@ -166,10 +168,11 @@ export default function createRoutes(store) {
               getComponents(location, cb) {
                 const importModules = Promise.all([
                   System.import('containers/ProductsPage/SearchModal'),
+                  System.import('containers/ProductsPage/EditModal'),
                   System.import('containers/ProductsPage'),
                 ])
-                .then(([ modal, component ]) => {
-                  cb(null, { searchModal: modal.default, page: component.default })
+                .then(([ searchModal, editModal, component ]) => {
+                  cb(null, { searchModal: searchModal.default, editModal: editModal.default, page: component.default })
                 });
               },
             },

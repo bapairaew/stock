@@ -7,9 +7,10 @@ import { Table, Column, Cell } from 'fixed-data-table-2';
 import { TextCell, NumberCell } from 'components/Cell/InEditable';
 import { EditableCell, EditableAutoCompleteCell, EditableNumberCell, EditableDateCell } from 'components/Cell/Editable';
 import { ToolCell } from 'components/Cell/Button';
+import { HeaderCheckboxCell, CheckboxCell } from 'components/Cell/Checkbox';
 import { setExportingParams } from 'containers/App/actions';
-import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setImporter } from 'containers/DataTable/actions';
-import { selectQuery, selectData, selectCleanData } from 'containers/DataTable/selectors';
+import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setImporter, focusItem, setEditor, setEditingItems } from 'containers/DataTable/actions';
+import { selectQuery, selectData, selectCleanData, selectFocusingItem, selectEditingItems } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
 import moment from 'moment';
 import GetContainerDimensions from 'react-dimensions';
@@ -22,16 +23,13 @@ const safeGetNumber = value => value || 0;
 const getTotalValue = ({ row }) => row && +safeGetNumber(safeGetNumber(row.get('price')) * safeGetNumber(row.get('amount'))).toFixed(2);
 
 export class StockPage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
-  state = {
-    editingProduct: null
-  };
 
   static contextTypes = {
     intl: React.PropTypes.object.isRequired,
   };
 
   componentDidMount() {
-    const { query, fetch, setEndpoint, route: { stockType }, setNewRow, setImporter, setExportingParams } = this.props;
+    const { query, fetch, setEndpoint, route: { stockType }, setNewRow, setImporter, setExportingParams, setEditor } = this.props;
     setNewRow(() => fromJS({
       _id: null,
       order: 0,
@@ -66,15 +64,32 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
         { fields: ['amount', 'price'], opt: '*' },
       ]
     });
+    setEditor((row, { order, date, receiptId, amount, price, removed }, idx) => {
+      let editedRow = row;
+      if (order) {
+        editedRow = editedRow.update('order', val => idx + 1);
+      }
+      if (date) {
+        editedRow = editedRow.update('date', val => date);
+      }
+      if (receiptId) {
+        editedRow = editedRow.update('receiptId', val => receiptId);
+      }
+      if (amount) {
+        editedRow = editedRow.update('amount', val => +amount);
+      }
+      if (price) {
+        editedRow = editedRow.update('price', val => +price);
+      }
+      return editedRow = editedRow.update('removed', val => removed);
+    });
   }
 
   render() {
     const { intl } = this.context;
-    const { editingProduct } = this.state;
     const { containerWidth, containerHeight, route: { stockType },
-      data, cleanData, remove, revertRemove, update } = this.props;
-    const commonEditableCellProps = { onEditing: r => this.setState({ editingProduct: r.get('product') }),
-      onUpdate: update, data, cleanData };
+      data, cleanData, focusingProduct, remove, revertRemove, update, focusingItem, editingItems, setEditingItems } = this.props;
+    const commonEditableCellProps = { onEditing: r => focusItem(r.get('product')), onUpdate: update, data, cleanData };
     const commonInEditableCellProps = { data, cleanData };
     const onProductUpdate = ({ value, rowIndex }) => update({ value, rowIndex, col: 'product' });
 
@@ -84,7 +99,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       <div>
         <StyledLayoutWithSideBar>
           <StyledSider>
-            <RemainingBar editingProduct={editingProduct} height={containerHeight - 46 * 2} stockType={stockType} />
+            <RemainingBar editingProduct={focusingItem} height={containerHeight - 46 * 2} stockType={stockType} />
           </StyledSider>
           <StyledContent>
             <Table
@@ -94,6 +109,10 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
               headerHeight={30}
               rowHeight={30}
               scrollToRow={data.count() - 1}>
+              <Column
+                header={<HeaderCheckboxCell items={data} selectedItems={editingItems} onCheckAll={items => setEditingItems(items)} />}
+                cell={({rowIndex}) => <CheckboxCell selectedItems={editingItems} item={data.get(rowIndex)} onCheck={items => setEditingItems(items)} />}
+                width={30} />
               <Column
                 header={<Cell></Cell>}
                 cell={<ToolCell data={data} remove={remove} revertRemove={revertRemove} />}
@@ -118,7 +137,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
               <Column
                 header={<Cell><FormattedMessage {...messages.productName} /></Cell>}
                 cell={<TextCell {...commonInEditableCellProps} col={['product', 'name']} />}
-                width={Math.max(200, _containerWidth - 920)} />
+                width={Math.max(200, _containerWidth - 950)} />
               <Column
                 header={<Cell><FormattedMessage {...messages.model} /></Cell>}
                 cell={<TextCell {...commonInEditableCellProps} col={['product', 'model']}  />}
@@ -147,6 +166,8 @@ const mapStateToProps = createStructuredSelector({
   query: selectQuery(),
   data: selectData(),
   cleanData: selectCleanData(),
+  focusingItem: selectFocusingItem(),
+  editingItems: selectEditingItems(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -159,6 +180,9 @@ function mapDispatchToProps(dispatch) {
     setNewRow: newRow => dispatch(setNewRow(newRow)),
     setImporter: importer => dispatch(setImporter(importer)),
     setExportingParams: params => dispatch(setExportingParams(params)),
+    focusItem: item => dispatch(focusItem(item)),
+    setEditingItems: items => dispatch(setEditingItems(items)),
+    setEditor: editor => dispatch(setEditor(editor)),
   };
 }
 

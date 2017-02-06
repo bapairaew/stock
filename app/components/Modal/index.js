@@ -10,9 +10,9 @@ import messages from './messages';
 
 const Dragger = Upload.Dragger;
 
-export const SearchModal = ({ submit, cancel, visible, children }) => (
+export const SubmitCancelModal = ({ title, submit, cancel, visible, children }) => (
   <Modal
-    title={<FormattedMessage {...messages.search} />}
+    title={title}
     visible={visible}
     onCancel={cancel}
     footer={<ModalFooter cancel={cancel} submit={submit} />}>

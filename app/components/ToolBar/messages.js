@@ -21,4 +21,8 @@ export default defineMessages({
     id: 'app.components.ToolBar.search',
     defaultMessage: 'Search',
   },
+  edit: {
+    id: 'app.components.ToolBar.edit',
+    defaultMessage: 'Edit',
+  }
 });

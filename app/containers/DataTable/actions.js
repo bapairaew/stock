@@ -20,6 +20,12 @@ import {
   SET_ENDPOINT,
   SET_NEW_ROW,
   SET_IMPORTER,
+  SET_EDITOR,
+  EDIT_OPEN,
+  EDIT_CLOSE,
+  SET_EDITING_ITEMS,
+  FOCUS_ITEM,
+  BATCH_EDIT_ITEMS,
 } from './constants';
 
 export function updateRow({ value, rowIndex, col }) {
@@ -125,17 +131,36 @@ export function uploadClose(rows) {
   };
 }
 
-export function searchOpen(rows) {
+export function searchOpen() {
   return {
     type: SEARCH_OPEN,
   };
 }
 
-export function searchClose(rows) {
+export function searchClose() {
   return {
     type: SEARCH_CLOSE,
   };
 }
+
+export function editOpen() {
+  return {
+    type: EDIT_OPEN,
+  };
+}
+
+export function editClose() {
+  return {
+    type: EDIT_CLOSE,
+  };
+}
+
+export function setEditingItems(items) {
+  return {
+    type: SET_EDITING_ITEMS,
+    items,
+  };
+};
 
 export function clearError() {
   return {
@@ -163,3 +188,24 @@ export function setImporter(importer) {
     importer,
   };
 }
+
+export function focusItem(item) {
+  return {
+    type: FOCUS_ITEM,
+    item,
+  };
+};
+
+export function batchEditItems(payload) {
+  return {
+    type: BATCH_EDIT_ITEMS,
+    payload,
+  };
+};
+
+export function setEditor(editor) {
+  return {
+    type: SET_EDITOR,
+    editor,
+  };
+};

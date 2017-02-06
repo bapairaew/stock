@@ -62,4 +62,24 @@ export default defineMessages({
     id: 'app.components.StockPage.unsavedMessage',
     defaultMessage: 'You have unsaved information, are you sure you want to leave this page?',
   },
+  orderTheseRows: {
+    id: 'app.components.StockPage.orderTheseRows',
+    defaultMessage: 'Order these rows',
+  },
+  search: {
+    id: 'app.components.StockPage.search',
+    defaultMessage: 'Search',
+  },
+  edit: {
+    id: 'app.components.StockPage.edit',
+    defaultMessage: 'Edit',
+  },
+  editingMessageTemplate: {
+    id: 'app.components.StockPage.editingMessageTemplate',
+    defaultMessage: 'You are editing {numberOfRows} rows.',
+  },
+  removeTheseRows: {
+    id: 'app.components.StockPage.removeTheseRows',
+    defaultMessage: 'Remove these rows',
+  },
 });

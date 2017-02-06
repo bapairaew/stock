@@ -21,6 +21,14 @@ export const UPLOAD_OPEN = 'app/DataTable/UPLOAD_OPEN';
 export const UPLOAD_CLOSE = 'app/DataTable/UPLOAD_CLOSE';
 export const SEARCH_OPEN = 'app/DataTable/SEARCH_OPEN';
 export const SEARCH_CLOSE = 'app/DataTable/SEARCH_CLOSE';
+export const EDIT_OPEN = 'app/DataTable/EDIT_OPEN';
+export const EDIT_CLOSE = 'app/DataTable/EDIT_CLOSE';
+
+export const SET_EDITING_ITEMS = 'app/DataTable/SET_EDITING_ITEMS';
+export const BATCH_EDIT_ITEMS = 'app/DataTable/BATCH_EDIT_ITEMS';
+export const SET_EDITOR = 'app/DataTable/SET_EDITOR';
+
+export const FOCUS_ITEM = 'app/DataTable/FOCUS_ITEM';
 
 export const SET_ENDPOINT = 'app/DataTable/SET_ENDPOINT';
 export const SET_NEW_ROW = 'app/DataTable/SET_NEW_ROW';
