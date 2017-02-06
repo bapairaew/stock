@@ -17,16 +17,17 @@ const Sell = require('../models/Sell');
 
 router.get('/', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
-  Product.find({
+  const query = Product.find({
     $or: [
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]})
-    .limit(limit)
-    .exec(function (err, results) {
+    ]});
+  if (limit) {
+    query.limit(+limit);
+  }
+  query.exec(function (err, results) {
       if (err) return res.status(500).send(err);
-      if (limit) results = results;
       res.status(200).json(results);
     });
 });
@@ -49,15 +50,17 @@ const getSum = (id) => {
 
 router.get('/sum', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
-  Product.find({
+  const query = Product.find({
     $or: [
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]},
-    function (err, results) {
+    ]});
+  if (limit) {
+    query.limit(+limit);
+  }
+  query.exec(function (err, results) {
       if (err) return res.status(500).send(err);
-      if (limit) results = results.slice(0, limit);
       Promise.all(results.map(r => getSum(r._id)))
       .then(r => res.status(200).json(r))
       .catch(err => res.status(500).send(log(err)));
