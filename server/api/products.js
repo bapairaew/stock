@@ -22,10 +22,11 @@ router.get('/', isAuthenticated, (req, res) => {
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]},
-    function (err, results) {
+    ]})
+    .limit(limit)
+    .exec(function (err, results) {
       if (err) return res.status(500).send(err);
-      if (limit) results = results.slice(0, limit);
+      if (limit) results = results;
       res.status(200).json(results);
     });
 });

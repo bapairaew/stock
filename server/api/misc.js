@@ -26,6 +26,9 @@ const opt = (values, opt) => {
 };
 
 const toArray = (rows, fields) => {
+  if (!fields) {
+    fields = Object.keys(rows[0]);
+  }
   return rows.map(r => {
     return fields.map(f => {
       if (!f) {

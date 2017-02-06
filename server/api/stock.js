@@ -27,6 +27,7 @@ const search = (Model, req, res) => {
         { name: { $regex: text, $options: 'i' } },
         { model: { $regex: text, $options: 'i' } },
       ]})
+    .sort({ date: 1 })
     .exec(function (err, results) {
       if (err) return res.status(500).send(log(err));
       res.status(200).json(results.filter(r => r.product));

@@ -23,7 +23,7 @@ export class HomePage extends React.PureComponent {
 
   componentDidMount() {
     const { fetch } = this.props;
-    fetch({ text: 'ชุดยาง', limit: 27 });
+    fetch({ text: 'JOMTHAI', limit: 27 });
   }
 
   render() {
