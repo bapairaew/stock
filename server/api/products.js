@@ -32,14 +32,13 @@ router.get('/', isAuthenticated, (req, res) => {
     });
 });
 
-const getSum = (id) => {
+const getSum = (id, _product) => {
   return Promise.all([
-    Product.findOne({ _id: id }),
     Sell.find({ product: { _id: id } }),
     Buy.find({ product: { _id: id } }),
-  ])
+  ].concat(_product ? [] : [Product.findOne({ _id: id })]))
   .then(results => {
-    const [ product, sell, buy ] = results;
+    const [ sell, buy, product = _product ] = results;
     return {
       product: product,
       sell: sell.reduce((sum, s) => sum + s.amount, 0),
@@ -61,7 +60,7 @@ router.get('/sum', isAuthenticated, (req, res) => {
   }
   query.exec(function (err, results) {
       if (err) return res.status(500).send(err);
-      Promise.all(results.map(r => getSum(r._id)))
+      Promise.all(results.map(r => getSum(r._id, r)))
       .then(r => res.status(200).json(r))
       .catch(err => res.status(500).send(log(err)));
     });
