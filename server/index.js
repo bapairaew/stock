@@ -10,6 +10,8 @@ const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel ? require('ngr
 const resolve = require('path').resolve;
 const app = express();
 
+const opn = require('opn');
+
 // Database
 const mongoUrl = 'mongodb://localhost/stock';
 const mongoose = require('mongoose');
@@ -73,4 +75,6 @@ app.listen(port, (err) => {
   } else {
     logger.appStarted(port);
   }
+
+  opn('http://stock/', {app: 'chrome'});
 });
