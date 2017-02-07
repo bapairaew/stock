@@ -10,7 +10,7 @@ export const StyledForm = styled(_Form)`
 
 export const CardContainer = styled.div`
   margin: 0 auto;
-  width: 1024px;
+  width: 1080px;
   min-height: 600px;
   display: flex;
   flex-wrap: wrap;
