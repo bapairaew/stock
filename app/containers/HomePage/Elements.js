@@ -14,6 +14,8 @@ export const CardContainer = styled.div`
   min-height: 600px;
   display: flex;
   flex-wrap: wrap;
+  overflow: auto;
+  height: 600px;
 `;
 
 const _Card = ({ ...props }) => (

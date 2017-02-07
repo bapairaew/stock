@@ -37,6 +37,16 @@ const selectUploadVisible = () => createSelector(
   (substate) => substate.get('uploadVisible'),
 );
 
+const selectEditVisible = () => createSelector(
+  selectDataTable(),
+  (substate) => substate.get('editVisible'),
+);
+
+const selectEditingItems = () => createSelector(
+  selectDataTable(),
+  (substate) => substate.get('editingItems'),
+);
+
 const selectError = () => createSelector(
   selectDataTable(),
   (substate) => substate.get('error'),
@@ -56,6 +66,11 @@ const selectChangedRows = () => createSelector(
   }
 );
 
+const selectFocusingItem = () => createSelector(
+  selectDataTable(),
+  (substate) => substate.get('focusingItem'),
+);
+
 export {
   selectDataTable,
   selectData,
@@ -66,7 +81,10 @@ export {
   selectExporting,
   selectSearchVisible,
   selectUploadVisible,
+  selectEditVisible,
+  selectEditingItems,
   selectError,
   selectEndpoint,
   selectChangedRows,
+  selectFocusingItem,
 };

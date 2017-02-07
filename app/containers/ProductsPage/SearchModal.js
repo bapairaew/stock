@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { FormattedMessage } from 'react-intl';
 import { Form, Input } from 'antd';
 import moment from 'moment';
-import { SearchModal } from 'components/Modal';
+import { SubmitCancelModal } from 'components/Modal';
 import { selectQuery, selectSearchVisible } from 'containers/DataTable/selectors';
 import { searchClose, fetch } from 'containers/DataTable/actions';
 
@@ -16,7 +16,8 @@ export class Modal extends React.PureComponent {
   render() {
     const { form: { getFieldDecorator }, searchVisible, searchClose, query, fetch } = this.props;
     return (
-      <SearchModal
+      <SubmitCancelModal
+        title={<FormattedMessage {...messages.search} />}
         visible={searchVisible}
         submit={() => {
           const { text } = this.props.form.getFieldsValue();
@@ -31,7 +32,7 @@ export class Modal extends React.PureComponent {
             )}
           </FormItem>
         </Form>
-      </SearchModal>
+      </SubmitCancelModal>
     );
   }
 }

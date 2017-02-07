@@ -21,8 +21,15 @@ import {
   SET_ENDPOINT,
   SET_NEW_ROW,
   SET_IMPORTER,
+  SET_EDITOR,
+  EDIT_OPEN,
+  EDIT_CLOSE,
+  SET_EDITING_ITEMS,
+  BATCH_EDIT_ITEMS,
+  FOCUS_ITEM,
 } from './constants';
 import { LOCATION_CHANGE } from 'react-router-redux';
+import { omit } from 'utils/obj';
 
 const initialData = [];
 
@@ -30,18 +37,22 @@ const initialState = fromJS({
   query: {},
   newRow: () => null,
   importer: rows => rows.map(r => fromJS(r)),
+  editor: (row, payload) => row,
   endpoint: '',
   loading: false,
   importing: false,
   searchVisible: false,
   uploadVisible: false,
+  editVisible: false,
+  editingItems: [],
   error: null,
   data: initialData,
   cleanData: initialData,
+  focusingItem: null,
 });
 
 function dataTableReducer(state = initialState, action) {
-  const { type, value, rowIndex, col, data, query, error, rows, url, endpoint, newRow, addedRows, importer, ...props } = action;
+  const { type, value, rowIndex, col, data, query, error, rows, url, endpoint, newRow, addedRows, importer, item, items, payload, editor, ...props } = action;
   const _data = fromJS(data);
 
   switch (type) {
@@ -79,12 +90,12 @@ function dataTableReducer(state = initialState, action) {
         .set('loading', true);
     case SAVE_SUCCESS:
       let idx = 0;
-      let _state = state
+      let toSavestate = state
         .set('loading', false)
         .update('data', arr => arr.filter(x => !x.get('removed')))
         .update('data', arr => arr.map(r => r.get('_id') ? r : r.set('_id', addedRows[idx++]._id)));
-      return _state
-        .set('cleanData', _state.get('data'));
+      return toSavestate
+        .set('cleanData', toSavestate.get('data'));
     case SAVE_FAILURE:
       return state
         .set('loading', false)
@@ -115,6 +126,28 @@ function dataTableReducer(state = initialState, action) {
     case UPLOAD_CLOSE:
       return state
         .set('uploadVisible', false);
+    case EDIT_OPEN:
+      return state
+        .set('editVisible', true);
+    case EDIT_CLOSE:
+      return state
+        .set('editVisible', false);
+    case SET_EDITING_ITEMS:
+      return state
+        .set('editingItems', items);
+    case BATCH_EDIT_ITEMS:
+      const { editingItems, ...rest } = omit(payload);
+      let editedState = state;
+      const _editor = state.get('editor');
+      let _cnt = 0;
+      editingItems.forEach(e => {
+        const idx = state.get('data').indexOf(e);
+        editedState = editedState.updateIn(['data', idx], row => _editor(row, rest, _cnt++));
+      });
+      return editedState;
+    case SET_EDITOR:
+      return state
+        .set('editor', editor);
 
     case CLEAR_ERROR:
       return state
@@ -131,6 +164,10 @@ function dataTableReducer(state = initialState, action) {
     case SET_IMPORTER:
       return state
         .set('importer', importer);
+
+    case FOCUS_ITEM:
+      return state
+        .set('focusingItem', item);
 
     default:
       return state;

@@ -8,7 +8,7 @@ import { selectData, selectCleanData, selectChangedRows, selectQuery,
 import { selectExporting } from 'containers/App/selectors';
 import { addRow, save,
   importRows, importRowsSuccess, importRowsFailure,
-  searchOpen, searchClose, uploadOpen, uploadClose,
+  searchOpen, uploadOpen, uploadClose, editOpen,
   clearError } from './actions';
 import { exportRows } from 'containers/App/actions';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
@@ -29,13 +29,13 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
   };
 
   render() {
-    const { searchModal, uploadForm,
+    const { searchModal, editModal, uploadForm,
       page, containerWidth, containerHeight,
       data, cleanData, changedRows,
       query, loading, importing, exporting, error,
       add, save, exportRows, endpoint,
       importRows, importRowsSuccess, importRowsFailure,
-      searchOpen, searchClose, uploadOpen, uploadClose,
+      searchOpen, editOpen, uploadOpen, uploadClose,
       searchVisible, uploadVisible,
       clearError
     } = this.props;
@@ -45,6 +45,7 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
       <Container>
         <ErrorModal error={error} clearError={clearError} />
         {searchModal}
+        {editModal}
         <UploadModal
           intl={intl}
           action={`${endpoint}/import`}
@@ -65,6 +66,7 @@ export class DataTable extends React.PureComponent { // eslint-disable-line reac
                 query={query}
                 save={() => save(changedRows)}
                 search={searchOpen}
+                edit={editOpen}
                 importRows={uploadOpen}
                 exportRows={() => exportRows(data)}
                 exporting={exporting} />
@@ -102,7 +104,7 @@ function mapDispatchToProps(dispatch) {
     importRowsFailure: error => dispatch(importRowsFailure(error)),
     add: () => dispatch(addRow()),
     searchOpen: () => dispatch(searchOpen()),
-    searchClose: () => dispatch(searchClose()),
+    editOpen: () => dispatch(editOpen()),
     uploadOpen: () => dispatch(uploadOpen()),
     uploadClose: () => dispatch(uploadClose()),
     clearError: () => dispatch(clearError()),

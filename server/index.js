@@ -15,11 +15,13 @@ const opn = require('opn');
 // Database
 const mongoUrl = 'mongodb://localhost/stock';
 const mongoose = require('mongoose');
-mongoose.connect(mongoUrl);
+mongoose.connect(mongoUrl, { server: { socketOptions: { connectTimeoutMS: 2 * 60 * 1000 }}});
 mongoose.connection.on('error', function(err) {
   console.error('MongoDB connection error: ' + err);
   process.exit(-1); // eslint-disable-line no-process-exit
 });
+
+mongoose.Promise = global.Promise;
 
 // Passport
 const passport = require('passport');

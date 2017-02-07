@@ -3,7 +3,7 @@ const multer  = require('multer');
 const upload = multer({ dest: '__temp/' });
 const router = new express.Router();
 
-const { parseWorkbook } = require('../utils/products');
+const { fromWorkbook } = require('../utils/products');
 const { read } = require('../utils/xlsx');
 const { remove } = require('../utils/file');
 const { join, flatten } = require('../utils/array');
@@ -15,29 +15,32 @@ const Product = require('../models/Product');
 const Buy = require('../models/Buy');
 const Sell = require('../models/Sell');
 
+const moment = require('moment');
+
 router.get('/', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
-  Product.find({
+  const query = Product.find({
     $or: [
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]},
-    function (err, results) {
-      if (err) return res.status(500).send(err);
-      if (limit) results = results.slice(0, limit);
+    ]});
+  if (limit) {
+    query.limit(+limit);
+  }
+  query.exec(function (err, results) {
+      if (err) return res.status(500).send(log(err));
       res.status(200).json(results);
     });
 });
 
-const getSum = (id) => {
+const getSum = (id, _product) => {
   return Promise.all([
-    Product.findOne({ _id: id }),
-    Sell.find({ product: { _id: id } }),
-    Buy.find({ product: { _id: id } }),
-  ])
+    Sell.find({ product: id }),
+    Buy.find({ product: id }),
+  ].concat(_product ? [] : [Product.findOne({ _id: id })]))
   .then(results => {
-    const [ product, sell, buy ] = results;
+    const [ sell, buy, product = _product ] = results;
     return {
       product: product,
       sell: sell.reduce((sum, s) => sum + s.amount, 0),
@@ -48,34 +51,36 @@ const getSum = (id) => {
 
 router.get('/sum', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
-  Product.find({
+  const query = Product.find(text ? {
     $or: [
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]},
-    function (err, results) {
-      if (err) return res.status(500).send(err);
-      if (limit) results = results.slice(0, limit);
-      Promise.all(results.map(r => getSum(r._id)))
-      .then(r => res.status(200).json(r))
-      .catch(err => res.status(500).send(log(err)));
+    ]} : {});
+  if (limit) {
+    query.limit(+limit);
+  }
+  query.exec(function (err, results) {
+      if (err) return res.status(500).send(log(err));
+      Promise.all(results.map(r => getSum(r._id, r)))
+        .then(r => res.status(200).json(r))
+        .catch(err => res.status(500).send(log(err)));
     });
 });
 
 router.get('/sum/:id', isAuthenticated, (req, res) => {
   const { id } = req.params;
   getSum(id)
-  .then(r => res.status(200).json(r))
-  .catch(err => res.status(500).send(log(err)));
+    .then(r => res.status(200).json(r))
+    .catch(err => res.status(500).send(log(err)));
 });
 
 router.get('/details/:id', isAuthenticated, (req, res) => {
   const { id } = req.params;
   return Promise.all([
     Product.findOne({ _id: id }),
-    Sell.find({ product: { _id: id } }),
-    Buy.find({ product: { _id: id } }),
+    Sell.find({ product: id }),
+    Buy.find({ product: id }),
   ])
   .then(results => {
     const [ product, sell, buy ] = results;
@@ -85,6 +90,27 @@ router.get('/details/:id', isAuthenticated, (req, res) => {
       buy: buy,
     });
   });
+});
+
+const makeReport = (req, res, ids) => {
+
+};
+
+router.get('/report/:id/:year', isAuthenticated, (req, res) => {
+  const { year } = req.params;
+  const { id } = req.query || {};
+  const startDate = new Date(`${(+year - 1)}-01-01T00:00:00.000Z`);
+  const endDate = new Date(`${(+year)}-01-01T00:00:00.000Z`);
+
+  if (id) {
+    makeReport(req, res, [id]);
+  } else {
+    Product.find({})
+      .exec(function (err, ids) {
+          if (err) return res.status(500).send(log(err));
+          makeReport(req, res, ids);
+      });
+  }
 });
 
 router.post('/save', isAuthenticated, (req, res) => {
@@ -101,7 +127,7 @@ router.post('/save', isAuthenticated, (req, res) => {
 
 router.post('/import', isAuthenticated, upload.single('file'), (req, res) => {
   const { path } = req.file;
-  res.status(200).json({ rows: parseWorkbook(read(path)) });
+  res.status(200).json({ rows: fromWorkbook(read(path)) });
   remove(path);
 });
 

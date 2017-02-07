@@ -232,7 +232,8 @@
     "warning": "3.0.0",
     "webpack": "^2.2.0-rc.3",
     "whatwg-fetch": "1.0.0",
-    "xlsx": "^0.8.1"
+    "xlsx": "^0.8.1",
+    "xlsx-template": "0.0.7"
   },
   "devDependencies": {
     "babel-cli": "6.18.0",

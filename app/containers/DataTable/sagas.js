@@ -11,9 +11,11 @@ import download from 'utils/download';
 import { message } from 'antd';
 import messages from './messages';
 import enTranslationMessages from 'translations/en.json';
+import thTranslationMessages from 'translations/th.json';
 
 const locales = {
-  en: enTranslationMessages
+  en: enTranslationMessages,
+  th: thTranslationMessages,
 };
 
 // Fetch
