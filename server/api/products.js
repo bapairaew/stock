@@ -4,10 +4,11 @@ const upload = multer({ dest: '__temp/' });
 const router = new express.Router();
 
 const { fromWorkbook } = require('../utils/products');
-const { read } = require('../utils/xlsx');
-const { remove } = require('../utils/file');
+const { read, fillTemplate } = require('../utils/xlsx');
+const { remove, writeBinary, temp, remove, zip } = require('../utils/file');
 const { join, flatten } = require('../utils/array');
 const { log } = require('../utils/log');
+const { gen } = require('../utils/id');
 const { classify, parseResults } = require('../utils/transformer');
 const { isAuthenticated } = require('../utils/auth');
 
@@ -92,15 +93,62 @@ router.get('/details/:id', isAuthenticated, (req, res) => {
   });
 });
 
-const makeReport = (req, res, ids) => {
+const processTransactions = transactions => transactions.reduce((arr, b) => {
+  if (b.date < startDate) {
+    arr[0].amount += b.amount;
+    return arr;
+  } else if (b.date < endDate) {
+    return arr.concat(b);
+  }
+}, [{ order: 1, date: startDate, receiptId: 'ยอดยกมา', product: product, amount: 0, price: null }]); // TODO: replace ยอดยกมา
 
+const makeReport = (req, res, ids, startDate, endDate) => {
+  const files = [];
+  Promise.all(ids.map(id => {
+    return Promise.all([
+      Product.findOne({ _id: id }),
+      Sell.find({ product: id }),
+      Buy.find({ product: id }),
+    ])
+    .then(results => {
+      const [ product, sell, buy ] = results;
+      // filter out after endDate, sum before startDate
+      // build json for templating
+      const transaction = {
+        product: product,
+        buy: processTransactions(buy),
+        sell: processTransactions(sell)
+      };
+
+      // fill template
+      const bytes = fillTemplate('report', transaction);
+
+      // write to file
+      const path = temp(product.id);
+      writeBinary(path, bytes);   // TODO: async??
+
+      // add path to files
+      files.push(path);
+    });
+  }))
+  .then(() => {
+    // zip files
+    const zipName = `${endDate.getFullYear() - 1}-${gen()}`;
+    zip(temp(zipName), files);
+
+    // delete files
+    files.forEach(f => remove(file));
+
+    // stream back
+    res.json({ url: `/api/v0/misc/download/${zipName}.zip` });
+  });
 };
 
-router.get('/report/:id/:year', isAuthenticated, (req, res) => {
+router.get('/report/:year', isAuthenticated, (req, res) => {
   const { year } = req.params;
   const { id } = req.query || {};
   const startDate = new Date(`${(+year - 1)}-01-01T00:00:00.000Z`);
-  const endDate = new Date(`${(+year)}-01-01T00:00:00.000Z`);
+  const endDate = new Date(`${(+year + 1)}-01-01T00:00:00.000Z`);
 
   if (id) {
     makeReport(req, res, [id]);
@@ -108,7 +156,7 @@ router.get('/report/:id/:year', isAuthenticated, (req, res) => {
     Product.find({})
       .exec(function (err, ids) {
           if (err) return res.status(500).send(log(err));
-          makeReport(req, res, ids);
+          makeReport(req, res, ids, startDate, endDate);
       });
   }
 });

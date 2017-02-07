@@ -51,13 +51,11 @@ router.post('/export', isAuthenticated, (req, res) => {
   res.json({ url: `/api/v0/misc/download/${generateFile(toArray(rows, fields))}.xlsx` });
 });
 
-const getId = filename => name(filename);
-
 router.get('/download/:filename', isAuthenticated, (req, res) => {
   try {
-    res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    // res.type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     const { params: { filename } } = req;
-    const filepath = temp(getId(filename));
+    const filepath = temp(name(filename));
     const file = fs.createReadStream(filepath);
     file.pipe(res)
       .on('close', () => remove(filepath))

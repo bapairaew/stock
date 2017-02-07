@@ -1,5 +1,6 @@
 const XLSX = require('XLSX');
 const { temp } = require('../utils/file');
+const { gen } = require('../utils/id');
 
 // view-source:http://sheetjs.com/demos/writexlsx.html
 function datenum(v, date1904) {
@@ -38,7 +39,7 @@ function fromArray(data) {
 };
 
 exports.generateFile = function (data) {
-  const id = Math.floor(Math.random() * 100000000000) + '';
+  const id = gen();
   XLSX.writeFile({
       SheetNames: ['Sheet 1'],
       Sheets: { 'Sheet 1': fromArray(data) },
@@ -49,4 +50,8 @@ exports.generateFile = function (data) {
 
 exports.read = function (path) {
 	return XLSX.readFile(path);
+};
+
+exports.fillTemplate = function (name, obj) {
+
 };
