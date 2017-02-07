@@ -15,6 +15,8 @@ const Product = require('../models/Product');
 const Buy = require('../models/Buy');
 const Sell = require('../models/Sell');
 
+const moment = require('moment');
+
 router.get('/', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
   const query = Product.find({
@@ -88,6 +90,27 @@ router.get('/details/:id', isAuthenticated, (req, res) => {
       buy: buy,
     });
   });
+});
+
+const makeReport = (req, res, ids) => {
+
+};
+
+router.get('/report/:id/:year', isAuthenticated, (req, res) => {
+  const { year } = req.params;
+  const { id } = req.query || {};
+  const startDate = new Date(`${(+year - 1)}-01-01T00:00:00.000Z`);
+  const endDate = new Date(`${(+year)}-01-01T00:00:00.000Z`);
+
+  if (id) {
+    makeReport(req, res, [id]);
+  } else {
+    Product.find({})
+      .exec(function (err, ids) {
+          if (err) return res.status(500).send(log(err));
+          makeReport(req, res, ids);
+      });
+  }
 });
 
 router.post('/save', isAuthenticated, (req, res) => {
