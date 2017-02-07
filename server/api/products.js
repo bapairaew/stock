@@ -5,7 +5,7 @@ const router = new express.Router();
 
 const { fromWorkbook } = require('../utils/products');
 const { read, fillTemplate } = require('../utils/xlsx');
-const { remove, writeBinary, temp, remove, zip } = require('../utils/file');
+const { remove, writeBinary, temp, zip } = require('../utils/file');
 const { join, flatten } = require('../utils/array');
 const { log } = require('../utils/log');
 const { gen } = require('../utils/id');
