@@ -6,7 +6,7 @@ exports.populate = function (arr) {
 };
 
 const startRow = 2;
-exports.parseWorkbook = function (workbook) {
+exports.fromWorkbook = function (workbook) {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const results = [];
   let index = startRow;

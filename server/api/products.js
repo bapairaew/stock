@@ -3,7 +3,7 @@ const multer  = require('multer');
 const upload = multer({ dest: '__temp/' });
 const router = new express.Router();
 
-const { parseWorkbook } = require('../utils/products');
+const { fromWorkbook } = require('../utils/products');
 const { read } = require('../utils/xlsx');
 const { remove } = require('../utils/file');
 const { join, flatten } = require('../utils/array');
@@ -104,7 +104,7 @@ router.post('/save', isAuthenticated, (req, res) => {
 
 router.post('/import', isAuthenticated, upload.single('file'), (req, res) => {
   const { path } = req.file;
-  res.status(200).json({ rows: parseWorkbook(read(path)) });
+  res.status(200).json({ rows: fromWorkbook(read(path)) });
   remove(path);
 });
 
