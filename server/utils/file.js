@@ -17,4 +17,4 @@ exports.zip = (dst, files, cb) => {
   files.forEach(f => archive.append(fs.createReadStream(f.path), { name: f.name }));
   archive.finalize();
 };
-exports.cleanName = name => name.replace(/[|&;$%@"<>()+,]/g, '_').substr(0, 255);
+exports.cleanName = name => name.replace(/([^a-z0-9]+)/gi, '_').substr(0, 200);

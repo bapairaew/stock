@@ -1,1 +1,1 @@
-exports.gen = () => Math.floor(Math.random() * 100000000000) + '';
+exports.gen = (length = 12) => Math.floor(Math.random() * Math.pow(10, length)) + '';

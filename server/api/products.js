@@ -161,8 +161,8 @@ const makeReport = (req, res, products, year) => {
       const bytes = fillTemplate('report', report);
 
       // write to file
-      const path = temp(product.id);
-      writeBinary(path, bytes);   // TODO: async??
+      const path = temp(cleanName(`${product.id}-${gen()}`));
+      writeBinary(path, bytes);
 
       // add path to files
       files.push(path);
@@ -171,7 +171,7 @@ const makeReport = (req, res, products, year) => {
   .then(() => {
     // zip files
     const zipName = `${year}-${gen()}`;
-    zip(temp(zipName), files.map(f => { return { path: f, name: cleanName(`${name(f)}.xlsx`) } }), (err) => {
+    zip(temp(zipName), files.map(f => { return { path: f, name: `${name(f)}.xlsx` } }), (err) => {
       if (err) return res.status(500).send(log(err));
       // delete files
       files.forEach(f => remove(f));
