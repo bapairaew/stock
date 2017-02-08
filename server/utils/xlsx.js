@@ -1,6 +1,8 @@
 const XLSX = require('XLSX');
-const { temp } = require('../utils/file');
+const { temp, readFileSync } = require('../utils/file');
 const { gen } = require('../utils/id');
+const XlsxTemplate = require('xlsx-template');
+const path = require('path');
 
 // view-source:http://sheetjs.com/demos/writexlsx.html
 function datenum(v, date1904) {
@@ -53,5 +55,13 @@ exports.read = function (path) {
 };
 
 exports.fillTemplate = function (name, obj) {
-
+	const templatePath = path.join(__dirname, '..', 'templates', `${name}.xlsx`);
+	const data = readFileSync(templatePath);
+	// Create a template
+	const template = new XlsxTemplate(data);
+	const sheetNumber = 1;
+	// Perform substitution
+	template.substitute(sheetNumber, obj);
+	// Get binary data
+	return template.generate();
 };

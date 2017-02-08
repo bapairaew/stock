@@ -58,7 +58,7 @@ router.get('/download/:filename', isAuthenticated, (req, res) => {
     const filepath = temp(name(filename));
     const file = fs.createReadStream(filepath);
     file.pipe(res)
-      .on('close', () => remove(filepath))
+      .on('end', () => remove(filepath))
       .on('error', err => log(err));
   } catch (ex) {
     res.status(500).send(log(ex));

@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 
 exports.populate = function (arr) {
   // TODO: optimise this
-  return Promise.all(arr.map(r => Product.findOne({ id: r.product }).then(p => Object.assign({}, r, { product: p }))));
+  return Promise.all(arr.map(r => Product.findOne({ id: r.product }).lean().then(p => Object.assign({}, r, { product: p }))));
 };
 
 const startRow = 2;

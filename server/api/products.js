@@ -5,7 +5,7 @@ const router = new express.Router();
 
 const { fromWorkbook } = require('../utils/products');
 const { read, fillTemplate } = require('../utils/xlsx');
-const { remove, writeBinary, temp, zip } = require('../utils/file');
+const { name, remove, writeBinary, temp, zip, cleanName } = require('../utils/file');
 const { join, flatten } = require('../utils/array');
 const { log } = require('../utils/log');
 const { gen } = require('../utils/id');
@@ -37,9 +37,9 @@ router.get('/', isAuthenticated, (req, res) => {
 
 const getSum = (id, _product) => {
   return Promise.all([
-    Sell.find({ product: id }),
-    Buy.find({ product: id }),
-  ].concat(_product ? [] : [Product.findOne({ _id: id })]))
+    Sell.find({ product: id }).lean(),
+    Buy.find({ product: id }).lean(),
+  ].concat(_product ? [] : [Product.findOne({ _id: id }).lean()]))
   .then(results => {
     const [ sell, buy, product = _product ] = results;
     return {
@@ -57,7 +57,8 @@ router.get('/sum', isAuthenticated, (req, res) => {
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]} : {});
+    ]} : {})
+    .lean();
   if (limit) {
     query.limit(+limit);
   }
@@ -79,9 +80,9 @@ router.get('/sum/:id', isAuthenticated, (req, res) => {
 router.get('/details/:id', isAuthenticated, (req, res) => {
   const { id } = req.params;
   return Promise.all([
-    Product.findOne({ _id: id }),
-    Sell.find({ product: id }),
-    Buy.find({ product: id }),
+    Product.findOne({ _id: id }).lean(),
+    Sell.find({ product: id }).lean(),
+    Buy.find({ product: id }).lean(),
   ])
   .then(results => {
     const [ product, sell, buy ] = results;
@@ -93,35 +94,72 @@ router.get('/details/:id', isAuthenticated, (req, res) => {
   });
 });
 
-const processTransactions = transactions => transactions.reduce((arr, b) => {
+const bringForwardId = 'ยอดยกมา';
+
+const processTransactions = (transactions, product, startDate, endDate) => transactions.reduce((arr, b) => {
+  if (b.receiptId === bringForwardId) {
+    return arr;
+  }
+
   if (b.date < startDate) {
     arr[0].amount += b.amount;
     return arr;
-  } else if (b.date < endDate) {
+  } else if (b.date <= endDate) {
     return arr.concat(b);
+  } else {
+    return arr;
   }
-}, [{ order: 1, date: startDate, receiptId: 'ยอดยกมา', product: product, amount: 0, price: null }]); // TODO: replace ยอดยกมา
+}, [{ order: 1, date: startDate, receiptId: bringForwardId, product: product._id, amount: 0, price: null }]); // TODO: replace ยอดยกมา
 
-const makeReport = (req, res, ids, startDate, endDate) => {
+const assignType = (item, type) => { item.type = type; return item; };
+
+const combineTransaction = (buy, sell) => {
+  return Object.assign({}, buy, { amount: buy.amount - sell.amount });
+};
+
+const makeReport = (req, res, products, year) => {
+  const startDate = new Date(`${+year}-01-01T00:00:00.000Z`);
+  const endDate = new Date(`${(+year + 1)}-01-01T00:00:00.000Z`);
   const files = [];
-  Promise.all(ids.map(id => {
+  Promise.all(products.map(product => {
     return Promise.all([
-      Product.findOne({ _id: id }),
-      Sell.find({ product: id }),
-      Buy.find({ product: id }),
+      Sell.find({ product: product._id }).lean(),
+      Buy.find({ product: product._id }).lean(),
     ])
     .then(results => {
-      const [ product, sell, buy ] = results;
+      const [ _sell, _buy ] = results;
       // filter out after endDate, sum before startDate
       // build json for templating
-      const transaction = {
+      const buy = processTransactions(_buy, product, startDate, endDate).map(b => assignType(b, 'buy'));
+      const sell = processTransactions(_sell, product, startDate, endDate).map(s => assignType(s, 'sell'));
+
+      if (buy.length === 1 && buy[0].amount === 0 &&
+        sell.length === 1 && sell[0].amount === 0) {
+        return;
+      }
+
+      let remaining = 0;
+      const total = { buy: 0, sell: 0 };
+      const report = {
         product: product,
-        buy: processTransactions(buy),
-        sell: processTransactions(sell)
+        transactions: [combineTransaction(buy[0], sell[0])].concat(buy.slice(1).concat(sell.slice(1)))
+          .sort((a, b) => a.date - b.date)
+          .map(_t => {
+            const t = Object.assign({}, _t);
+            remaining = remaining + (t.type === 'buy' ? 1 : -1) * t.amount;
+            t.date = moment(t.date).format('DD/MM/YYYY');
+            t.remaining = remaining;
+            t[t.type] = t.amount;
+            total[t.type] += t.amount;
+            return t;
+          }),
+        remaining: remaining,
+        total: total,
+        year: year,
       };
 
       // fill template
-      const bytes = fillTemplate('report', transaction);
+      const bytes = fillTemplate('report', report);
 
       // write to file
       const path = temp(product.id);
@@ -133,30 +171,37 @@ const makeReport = (req, res, ids, startDate, endDate) => {
   }))
   .then(() => {
     // zip files
-    const zipName = `${endDate.getFullYear() - 1}-${gen()}`;
-    zip(temp(zipName), files);
-
-    // delete files
-    files.forEach(f => remove(file));
-
-    // stream back
-    res.json({ url: `/api/v0/misc/download/${zipName}.zip` });
+    const zipName = `${year}-${gen()}`;
+    zip(temp(zipName), files.map(f => { return { path: f, name: cleanName(`${name(f)}.xlsx`) } }), (err) => {
+      if (err) return res.status(500).send(log(err));
+      // delete files
+      files.forEach(f => remove(f));
+      // stream back
+      res.json({ url: `/api/v0/misc/download/${zipName}.zip` });
+    });
+  })
+  .catch(err => {
+    res.status(500).send(log(err));
   });
 };
 
 router.get('/report/:year', isAuthenticated, (req, res) => {
   const { year } = req.params;
   const { id } = req.query || {};
-  const startDate = new Date(`${(+year - 1)}-01-01T00:00:00.000Z`);
-  const endDate = new Date(`${(+year + 1)}-01-01T00:00:00.000Z`);
 
   if (id) {
-    makeReport(req, res, [id]);
+    Product.findOne({ id: id })
+      .lean()
+      .exec(function (err, product) {
+          if (err) return res.status(500).send(log(err));
+          makeReport(req, res, [product], year);
+      });
   } else {
     Product.find({})
-      .exec(function (err, ids) {
+      .lean()
+      .exec(function (err, products) {
           if (err) return res.status(500).send(log(err));
-          makeReport(req, res, ids, startDate, endDate);
+          makeReport(req, res, products, year);
       });
   }
 });

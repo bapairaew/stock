@@ -22,8 +22,9 @@ router.get('/', isAuthenticated, (req, res) => {
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]},
-    function (err, results) {
+    ]})
+    .lean()
+    .exec(function (err, results) {
       if (err) return res.status(500).send(err);
       res.status(200).json(results).slice(0, limit);
     });
@@ -31,9 +32,9 @@ router.get('/', isAuthenticated, (req, res) => {
 
 const getSum = (id) => {
   return Promise.all([
-    Product.findOne({ _id: id }),
-    Sell.find({ product: { _id: id } }),
-    Buy.find({ product: { _id: id } }),
+    Product.findOne({ _id: id }).lean(),
+    Sell.find({ product: { _id: id } }).lean(),
+    Buy.find({ product: { _id: id } }).lean(),
   ])
   .then(results => {
     const [ product, sell, buy ] = results;
@@ -52,8 +53,9 @@ router.get('/sum', isAuthenticated, (req, res) => {
       { id: { $regex: text, $options: 'i' } },
       { name: { $regex: text, $options: 'i' } },
       { model: { $regex: text, $options: 'i' } },
-    ]},
-    function (err, results) {
+    ]})
+    .lean()
+    .exec(function (err, results) {
       if (err) return res.status(500).send(err);
       Promise.all(results.map(r => getSum(r._id)))
       .then(r => res.status(200).json(r.sort((a, b) => (b.sell - b.buy) - (a.sell - a.buy)).slice(0, limit)))
@@ -71,9 +73,9 @@ router.get('/sum/:id', isAuthenticated, (req, res) => {
 router.get('/details/:id', isAuthenticated, (req, res) => {
   const { id } = req.params;
   return Promise.all([
-    Product.findOne({ _id: id }),
-    Sell.find({ product: { _id: id } }),
-    Buy.find({ product: { _id: id } }),
+    Product.findOne({ _id: id }).lean(),
+    Sell.find({ product: { _id: id } }).lean(),
+    Buy.find({ product: { _id: id } }).lean(),
   ])
   .then(results => {
     const [ product, sell, buy ] = results;

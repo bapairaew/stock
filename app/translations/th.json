@@ -34,7 +34,7 @@
   "app.components.StockPage.spare": "อะไหล่",
   "app.components.StockPage.unsavedMessage": "มีข้อมูลยังไม่ถูกบันทึก คุณต้องการออกจากหน้านี้จริงหรือไม่?",
   "app.components.ToolBar.add": "เพิ่ม",
-  "app.components.ToolBar.edit": "Edit",
+  "app.components.ToolBar.edit": "แก้ไข",
   "app.components.ToolBar.import": "นำเข้า",
   "app.components.ToolBar.save": "บันทึก",
   "app.components.ToolBar.saveAsExcel": "ดาวน์โหลดเป็น Excel",

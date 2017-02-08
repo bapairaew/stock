@@ -12,10 +12,12 @@ const app = express();
 
 const opn = require('opn');
 
+const MAX_TIMEOUT =  12 * 60 * 60 * 1000;
+
 // Database
 const mongoUrl = 'mongodb://localhost/stock';
 const mongoose = require('mongoose');
-mongoose.connect(mongoUrl, { server: { socketOptions: { connectTimeoutMS: 2 * 60 * 1000 }}});
+mongoose.connect(mongoUrl, { server: { socketOptions: { connectTimeoutMS: MAX_TIMEOUT, socketTimeoutMS: MAX_TIMEOUT }}});
 mongoose.connection.on('error', function(err) {
   console.error('MongoDB connection error: ' + err);
   process.exit(-1); // eslint-disable-line no-process-exit
@@ -30,7 +32,7 @@ const cookieParser = require('cookie-parser');
 const session = require('cookie-session');
 const bodyParser = require('body-parser');
 
-app.use(bodyParser.json({ limit: '200mb' }));
+app.use(bodyParser.json({ limit: '1gb' }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({keys: ['secretkey1', 'secretkey2', '...']}));
