@@ -11,12 +11,11 @@ const { log } = require('../utils/log');
 const { gen } = require('../utils/id');
 const { classify, parseResults } = require('../utils/transformer');
 const { isAuthenticated } = require('../utils/auth');
+const { format } = require('../utils/date');
 
 const Product = require('../models/Product');
 const Buy = require('../models/Buy');
 const Sell = require('../models/Sell');
-
-const moment = require('moment');
 
 router.get('/', isAuthenticated, (req, res) => {
   const { text, limit } = req.query;
@@ -147,7 +146,7 @@ const makeReport = (req, res, products, year) => {
           .map(_t => {
             const t = Object.assign({}, _t);
             remaining = remaining + (t.type === 'buy' ? 1 : -1) * t.amount;
-            t.date = moment(t.date).format('DD/MM/YYYY');
+            t.date = format(t.date);
             t.remaining = remaining;
             t[t.type] = t.amount;
             total[t.type] += t.amount;

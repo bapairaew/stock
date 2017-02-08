@@ -1,7 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const fs = require('fs');
-const { generateFile } = require('../utils/xlsx');
+const { generateFile, print } = require('../utils/xlsx');
 const { isAuthenticated } = require('../utils/auth');
 const { name, temp, remove } = require('../utils/file');
 const { get } = require('../utils/obj');
@@ -29,19 +29,21 @@ const toArray = (rows, fields) => {
   if (!fields) {
     fields = Object.keys(rows[0]);
   }
-  return rows.map(r => {
-    return fields.map(f => {
-      if (!f) {
-        return null;
-      } else if (typeof f === 'string') {
-        return r[f];
-      } else if (Array.isArray(f)) {
-        return get(r, `.${f.join('.')}`);
-      } else if (f.fields && f.opt) {
-        return opt(f.fields.map(ff => r[ff]), f.opt);
-      } else {
-        return null;
+  return rows.map(row => {
+    return fields.map(field => {
+      let value = null;
+
+      if (field) {
+        if (typeof field === 'string') {
+          value = row[field];
+        } else if (Array.isArray(field)) {
+          value = get(row, `.${field.join('.')}`);
+        } else if (field.fields && field.opt) {
+          value = opt(field.fields.map(ff => row[ff]), field.opt);
+        }
       }
+
+      return print(value);
     });
   });
 };

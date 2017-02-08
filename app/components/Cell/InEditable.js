@@ -15,6 +15,7 @@ const StyledCell = styled(_Cell)`
 
 const RightAlignedCell = styled(StyledCell)`
   text-align: right;
+  margin-right: 15px;
 `;
 
 const CenterAlignedCell = styled(StyledCell)`

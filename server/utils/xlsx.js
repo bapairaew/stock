@@ -1,6 +1,7 @@
 const XLSX = require('XLSX');
 const { temp, readFileSync } = require('../utils/file');
 const { gen } = require('../utils/id');
+const { format } = require('../utils/date');
 const XlsxTemplate = require('xlsx-template');
 const path = require('path');
 
@@ -50,9 +51,7 @@ exports.generateFile = function (data) {
   return id;
 };
 
-exports.read = function (path) {
-	return XLSX.readFile(path);
-};
+exports.read = path => XLSX.readFile(path);
 
 exports.fillTemplate = function (name, obj) {
 	const templatePath = path.join(__dirname, '..', 'templates', `${name}.xlsx`);
@@ -64,4 +63,12 @@ exports.fillTemplate = function (name, obj) {
 	template.substitute(sheetNumber, obj);
 	// Get binary data
 	return template.generate();
+};
+
+exports.print = function (value) {
+	if (value instanceof Date) {
+		return format(value);
+	}
+
+	return value;
 };

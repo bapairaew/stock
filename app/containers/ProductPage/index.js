@@ -10,7 +10,7 @@ import { FormattedMessage } from 'react-intl';
 import { selectProduct, selectSell, selectBuy, selectLoading, selectError } from './selectors';
 import { selectExporting } from 'containers/App/selectors';
 import { fetchProduct } from './actions';
-import { exportRows } from 'containers/App/actions';
+import { exportRows, setExportingParams } from 'containers/App/actions';
 import { Button, Spin } from 'antd';
 import GetContainerDimensions from 'react-dimensions';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
@@ -53,10 +53,11 @@ const ToolBarContainer = styled.div`
   padding: 0 10px !important;
 `;
 
-const printIfBuy = ({ row }) => row.get('type') === 'buy' ? row.get('amount') : null;
-const printIfSell = ({ row }) => row.get('type') === 'sell' ? row.get('amount') : null;
 const sum = (list, field) => list.reduce((prev, current) => prev + +current.get(field), 0);
-const transform = (r, type) => r.set('type', type)
+const transform = (r, type) => r
+  .set('buy', null)
+  .set('sell', null)
+  .set(type, r.get('amount'))
   .set('price', r.get('price').toFixed(2))
   .set('amount', r.get('amount'))
   .set('date', new Date(r.get('date')))
@@ -70,7 +71,18 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
   };
 
   componentDidMount() {
-    this.props.fetchProduct(this.props.params.id);
+    const { fetchProduct, setExportingParams } = this.props;
+    fetchProduct(this.props.params.id);
+    setExportingParams({
+      fields: [
+        { fields: ['date'], opt: 'date' },
+        'receiptId',
+        'buy',
+        'sell',
+        'price',
+        'total',
+      ]
+    });
   }
 
   render() {
@@ -112,7 +124,8 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
               height={containerHeight - 46 * 2 - 250}
               rowsCount={data.count()}
               headerHeight={30}
-              rowHeight={30}>
+              rowHeight={30}
+              scrollToRow={data.count() - 1}>
               <Column
                 header={<Cell><FormattedMessage {...messages.order} /></Cell>}
                 cell={<NumberCell {...commonInEditableCellProps} col={['order']} />}
@@ -127,11 +140,11 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
                 width={Math.max(200, containerWidth - 900)} />
               <Column
                 header={<Cell><FormattedMessage {...messages.buy} /></Cell>}
-                cell={<NumberCell {...commonInEditableCellProps} col={['amount']} getValue={printIfBuy} />}
+                cell={<NumberCell {...commonInEditableCellProps} col={['buy']} />}
                 width={150} />
               <Column
                 header={<Cell><FormattedMessage {...messages.sell} /></Cell>}
-                cell={<NumberCell {...commonInEditableCellProps} col={['amount']} getValue={printIfSell} />}
+                cell={<NumberCell {...commonInEditableCellProps} col={['sell']} />}
                 width={150} />
               <Column
                 header={<Cell><FormattedMessage {...messages.price} /></Cell>}
@@ -162,6 +175,7 @@ function mapDispatchToProps(dispatch) {
   return {
     fetchProduct: id => dispatch(fetchProduct(id)),
     exportRows: rows => dispatch(exportRows(rows)),
+    setExportingParams: params => dispatch(setExportingParams(params)),
   };
 }
 
