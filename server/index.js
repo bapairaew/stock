@@ -9,12 +9,12 @@ const isDev = process.env.NODE_ENV !== 'production';
 const ngrok = (isDev && process.env.ENABLE_TUNNEL) || argv.tunnel ? require('ngrok') : false;
 const resolve = require('path').resolve;
 const app = express();
-
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const opn = require('opn');
 
-const MAX_TIMEOUT =  12 * 60 * 60 * 1000;
-
 // Database
+const MAX_TIMEOUT =  12 * 60 * 60 * 1000;
 const mongoUrl = 'mongodb://localhost/stock';
 const mongoose = require('mongoose');
 mongoose.connect(mongoUrl, { server: { socketOptions: { connectTimeoutMS: MAX_TIMEOUT, socketTimeoutMS: MAX_TIMEOUT }}});
@@ -51,7 +51,7 @@ app.use('/api/v0/stock', require('./api/stock'));
 app.use('/api/v0/products', require('./api/products'));
 app.use('/api/v0/misc', require('./api/misc'));
 app.use('/api/v0/users', require('./api/users'));
-app.use('/api/v0/report', require('./api/report'));
+app.use('/api/v0/report', require('./api/report')(io));
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {
@@ -63,7 +63,7 @@ setup(app, {
 const port = argv.port || process.env.PORT || 3000;
 
 // Start your app.
-app.listen(port, (err) => {
+http.listen(port, (err) => {
   if (err) {
     return logger.error(err.message);
   }

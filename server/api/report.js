@@ -14,6 +14,8 @@ const Sell = require('../models/Sell');
 
 const bringForwardId = 'ยอดยกมา ';
 
+let io = null;
+
 const processTransactions = (transactions, product, startDate, endDate) => transactions.reduce((arr, b) => {
   if (b.receiptId === bringForwardId) {
     return arr;
@@ -107,7 +109,9 @@ const makeSummaryReport = (req, res, products, year, timezone) => {
   });
 };
 
-const makeFullReport = (req, res, products, year, timezone) => {
+const makeFullReport = (req, res, products, year, timezone, socketId) => {
+  const eventId = `download-link-${gen()}`;
+  res.status(200).json({ socketEvent: eventId });
   const [ startDate, endDate ] = makeDateRange(year, timezone);
   Promise.all(products.map(product => {
     return Promise.all([
@@ -132,7 +136,8 @@ const makeFullReport = (req, res, products, year, timezone) => {
     zip(temp(zipName), files.map(f => { return { path: f, name: `${name(f)}.xlsx` } }), (err) => {
       if (err) return res.status(500).send(log(err));
       files.forEach(f => remove(f));
-      res.status(200).json({ url: `/api/v0/misc/download/${zipName}.zip` });
+      console.log(socketId, eventId);
+      io.sockets.connected[socketId].emit(eventId, `/api/v0/misc/download/${zipName}.zip`);
     });
   })
   .catch(err => {
@@ -143,21 +148,22 @@ const makeFullReport = (req, res, products, year, timezone) => {
 const makeReport = (req, res, maker) => {
   const { year } = req.params;
   // TODO: use timezone
-  const { id, timezone } = req.query || {};
+  const { id, timezone, socketId } = req.query || {};
 
   if (id) {
     Product.findOne({ id: id })
       .lean()
       .exec(function (err, product) {
           if (err) return res.status(500).send(log(err));
-          maker(req, res, [product], year, timezone);
+          maker(req, res, [product], year, timezone, socketId);
       });
   } else {
     Product.find({})
       .lean()
+      .limit(100)
       .exec(function (err, products) {
           if (err) return res.status(500).send(log(err));
-          maker(req, res, products, year, timezone);
+          maker(req, res, products, year, timezone, socketId);
       });
   }
 };
@@ -170,4 +176,4 @@ router.get('/full/:year', isAuthenticated, (req, res) => {
   makeReport(req, res, makeFullReport);
 });
 
-module.exports = router;
+module.exports = (_io) => { io = _io; return router; };

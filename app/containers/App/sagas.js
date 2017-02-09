@@ -16,6 +16,9 @@ import request from 'utils/request';
 import qs from 'qs';
 import download from 'utils/download';
 import moment from 'moment-timezone';
+import client from 'socket.io-client';
+
+const socket = client.connect(window.location.href);
 
 // Common
 export function* downloadAction(action) {
@@ -69,9 +72,17 @@ export function* exportDataSuccessSaga() {
 export function* fullReport(action) {
   try {
     const { year, id } = action;
-    const requestURL = `/api/v0/report/full/${year}?timezone=${moment.tz.guess()}${id ? `&id=${id}` : ''}`;
-    const { url } = yield call(request, requestURL);
-    yield put(makeFullReportSuccess(url));
+    const timezone = moment.tz.guess();
+    const socketId = socket.io.engine.id;
+    const requestURL = `/api/v0/report/full/${year}?${qs.stringify({ timezone, socketId, id })}`;
+
+    const { socketEvent } = yield call(request, requestURL);
+    yield socket.once(socketEvent, ({ url }) => {
+      console.log(url);
+      socket.off(socketEvent, success);
+      put(makeFullReportSuccess(url));
+    });
+    console.log(socketEvent);
   } catch (err) {
     yield put(makeFullReportFailure(err));
     throw err;
@@ -105,7 +116,8 @@ export function* fullReportSuccessSaga() {
 export function* summaryReport(action) {
   try {
     const { year } = action;
-    const requestURL = `/api/v0/report/summary/${year}?timezone=${moment.tz.guess()}`;
+    const timezone = moment.tz.guess();
+    const requestURL = `/api/v0/report/summary/${year}?${qs.stringify({ timezone })}`;
     const { url } = yield call(request, requestURL);
     yield put(makeSummaryReportSuccess(url));
   } catch (err) {
