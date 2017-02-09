@@ -6,6 +6,7 @@ import { ErrorBox, SubHeader } from 'components/Layout';
 import styled from 'styled-components';
 import { Table, Column, Cell } from 'fixed-data-table-2';
 import { TextCell, NumberCell, DateCell } from 'components/Cell/InEditable';
+import { ToolBar, LeftTool, RightTool, Separator, ToolBarButton } from 'components/ToolBar';
 import { FormattedMessage } from 'react-intl';
 import { selectProduct, selectSell, selectBuy, selectLoading, selectError } from './selectors';
 import { selectExporting } from 'containers/App/selectors';
@@ -43,14 +44,6 @@ const H5 = styled.h5`
   font-weight: 100;
   margin-top: 20px;
   display: ${props => props.visible ? 'block' : 'none'};
-`;
-
-// TODO: Repeated code
-const ToolBarContainer = styled.div`
-  height: 46px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px !important;
 `;
 
 const sum = (list, field) => list.reduce((prev, current) => prev + +current.get(field), 0);
@@ -102,11 +95,16 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
         <Helmet title={product.get('name') || intl.formatMessage(messages.title)} />
         <Spin spinning={loading}>
           <SubHeader>
-            <ToolBarContainer>
-              <Button type="primary" icon="file-excel" loading={exporting} onClick={() => exportRows(data)}>
-                <FormattedMessage {...messages.saveAsExcel} />
-              </Button>
-            </ToolBarContainer>
+            <ToolBar>
+              <LeftTool>
+                <div>Yeah, right.</div>
+              </LeftTool>
+              <RightTool>
+                <ToolBarButton type="primary" icon="file-excel" loading={exporting} onClick={() => exportRows(data)}>
+                  <FormattedMessage {...messages.saveAsExcel} />
+                </ToolBarButton>
+              </RightTool>
+            </ToolBar>
           </SubHeader>
           <Header>
             <h1>{product.get('name')}</h1>

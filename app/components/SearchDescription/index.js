@@ -4,9 +4,12 @@ import messages from './messages';
 import styled from 'styled-components';
 import moment from 'moment';
 
-const SearchDescriptionContainer = styled.span`
+const SearchDescriptionContainer = styled.div`
   color: rgba(255,255,255,.7);
   margin-right: 10px;
+  height: 30px;
+  display: flex;
+  align-items: center;
 `;
 
 const formatDate = (date) => (date && moment(date).format('DD/MM/YYYY')) || '';

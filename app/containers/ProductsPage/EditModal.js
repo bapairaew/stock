@@ -65,6 +65,20 @@ export class Modal extends React.PureComponent {
   }
 }
 
+const editor = (row, { id, name, model, removed }, idx) => {
+  let editedRow = row;
+  if (id) {
+    editedRow = editedRow.update('id', val => id);
+  }
+  if (name) {
+    editedRow = editedRow.update('name', val => name);
+  }
+  if (model) {
+    editedRow = editedRow.update('model', val => model);
+  }
+  return editedRow = editedRow.update('removed', val => removed);
+};
+
 const mapStateToProps = createStructuredSelector({
   editVisible: selectEditVisible(),
   editingItems: selectEditingItems(),
@@ -73,7 +87,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     editClose: () => dispatch(editClose()),
-    batchEditItems: payload => dispatch(batchEditItems(payload)),
+    batchEditItems: payload => dispatch(batchEditItems(payload, editor)),
     setEditingItems: items => dispatch(setEditingItems(items)),
   };
 }

@@ -26,7 +26,6 @@ export const EDIT_CLOSE = 'app/DataTable/EDIT_CLOSE';
 
 export const SET_EDITING_ITEMS = 'app/DataTable/SET_EDITING_ITEMS';
 export const BATCH_EDIT_ITEMS = 'app/DataTable/BATCH_EDIT_ITEMS';
-export const SET_EDITOR = 'app/DataTable/SET_EDITOR';
 
 export const FOCUS_ITEM = 'app/DataTable/FOCUS_ITEM';
 

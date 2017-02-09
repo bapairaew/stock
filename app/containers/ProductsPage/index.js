@@ -8,7 +8,7 @@ import { EditableCell } from 'components/Cell/Editable';
 import { ToolCell } from 'components/Cell/Button';
 import { HeaderCheckboxCell, CheckboxCell } from 'components/Cell/Checkbox';
 import { setExportingParams } from 'containers/App/actions';
-import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setEditor, setEditingItems } from 'containers/DataTable/actions';
+import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setEditingItems } from 'containers/DataTable/actions';
 import { selectQuery, selectData, selectCleanData, selectChangedRows, selectEditingItems } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
 import GetContainerDimensions from 'react-dimensions';
@@ -22,7 +22,7 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
   };
 
   componentDidMount() {
-    const { query, fetch, setNewRow, setEndpoint, setExportingParams, setEditor } = this.props;
+    const { query, fetch, setNewRow, setEndpoint, setExportingParams } = this.props;
     setEndpoint('/api/v0/products');
     fetch({ text: '' });
     setNewRow(() => fromJS({ id: '', name: '', model: '' }));
@@ -32,19 +32,6 @@ export class ProductsPage extends React.PureComponent { // eslint-disable-line r
         'name',
         'model',
       ]
-    });
-    setEditor((row, { id, name, model, removed }, idx) => {
-      let editedRow = row;
-      if (id) {
-        editedRow = editedRow.update('id', val => id);
-      }
-      if (name) {
-        editedRow = editedRow.update('name', val => name);
-      }
-      if (model) {
-        editedRow = editedRow.update('model', val => model);
-      }
-      return editedRow = editedRow.update('removed', val => removed);
     });
   }
 
@@ -119,7 +106,6 @@ function mapDispatchToProps(dispatch) {
     setNewRow: newRow => dispatch(setNewRow(newRow)),
     setExportingParams: params => dispatch(setExportingParams(params)),
     setEditingItems: items => dispatch(setEditingItems(items)),
-    setEditor: editor => dispatch(setEditor(editor)),
   };
 }
 

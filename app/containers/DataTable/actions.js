@@ -20,7 +20,6 @@ import {
   SET_ENDPOINT,
   SET_NEW_ROW,
   SET_IMPORTER,
-  SET_EDITOR,
   EDIT_OPEN,
   EDIT_CLOSE,
   SET_EDITING_ITEMS,
@@ -196,16 +195,10 @@ export function focusItem(item) {
   };
 };
 
-export function batchEditItems(payload) {
+export function batchEditItems(payload, editor) {
   return {
     type: BATCH_EDIT_ITEMS,
     payload,
-  };
-};
-
-export function setEditor(editor) {
-  return {
-    type: SET_EDITOR,
     editor,
   };
 };

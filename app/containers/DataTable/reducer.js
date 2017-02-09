@@ -21,7 +21,6 @@ import {
   SET_ENDPOINT,
   SET_NEW_ROW,
   SET_IMPORTER,
-  SET_EDITOR,
   EDIT_OPEN,
   EDIT_CLOSE,
   SET_EDITING_ITEMS,
@@ -138,16 +137,12 @@ function dataTableReducer(state = initialState, action) {
     case BATCH_EDIT_ITEMS:
       const { editingItems, ...rest } = omit(payload);
       let editedState = state;
-      const _editor = state.get('editor');
       let _cnt = 0;
       editingItems.forEach(e => {
         const idx = state.get('data').indexOf(e);
-        editedState = editedState.updateIn(['data', idx], row => _editor(row, rest, _cnt++));
+        editedState = editedState.updateIn(['data', idx], row => editor(row, rest, _cnt++));
       });
       return editedState;
-    case SET_EDITOR:
-      return state
-        .set('editor', editor);
 
     case CLEAR_ERROR:
       return state

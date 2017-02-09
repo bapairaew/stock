@@ -9,7 +9,7 @@ import { EditableCell, EditableAutoCompleteCell, EditableNumberCell, EditableDat
 import { ToolCell } from 'components/Cell/Button';
 import { HeaderCheckboxCell, CheckboxCell } from 'components/Cell/Checkbox';
 import { setExportingParams } from 'containers/App/actions';
-import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setImporter, focusItem, setEditor, setEditingItems } from 'containers/DataTable/actions';
+import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setImporter, focusItem, setEditingItems } from 'containers/DataTable/actions';
 import { selectQuery, selectData, selectCleanData, selectFocusingItem, selectEditingItems } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
 import moment from 'moment';
@@ -29,7 +29,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
   };
 
   componentDidMount() {
-    const { query, fetch, setEndpoint, route: { stockType }, setNewRow, setImporter, setExportingParams, setEditor } = this.props;
+    const { query, fetch, setEndpoint, route: { stockType }, setNewRow, setImporter, setExportingParams } = this.props;
     setNewRow(() => fromJS({
       _id: null,
       order: 0,
@@ -63,25 +63,6 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
         'price',
         { fields: ['amount', 'price'], opt: '*' },
       ]
-    });
-    setEditor((row, { order, date, receiptId, amount, price, removed }, idx) => {
-      let editedRow = row;
-      if (order) {
-        editedRow = editedRow.update('order', val => idx + 1);
-      }
-      if (date) {
-        editedRow = editedRow.update('date', val => date);
-      }
-      if (receiptId) {
-        editedRow = editedRow.update('receiptId', val => receiptId);
-      }
-      if (amount) {
-        editedRow = editedRow.update('amount', val => +amount);
-      }
-      if (price) {
-        editedRow = editedRow.update('price', val => +price);
-      }
-      return editedRow = editedRow.update('removed', val => removed);
     });
   }
 
@@ -182,7 +163,6 @@ function mapDispatchToProps(dispatch) {
     setExportingParams: params => dispatch(setExportingParams(params)),
     focusItem: item => dispatch(focusItem(item)),
     setEditingItems: items => dispatch(setEditingItems(items)),
-    setEditor: editor => dispatch(setEditor(editor)),
   };
 }
 
