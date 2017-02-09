@@ -9,13 +9,14 @@ import { TextCell, NumberCell, DateCell } from 'components/Cell/InEditable';
 import { ToolBar, LeftTool, RightTool, Separator, ToolBarButton } from 'components/ToolBar';
 import { FormattedMessage } from 'react-intl';
 import { selectProduct, selectSell, selectBuy, selectLoading, selectError } from './selectors';
-import { selectExporting } from 'containers/App/selectors';
+import { selectExporting, selectMakingFullReport } from 'containers/App/selectors';
 import { fetchProduct } from './actions';
-import { exportRows, setExportingParams } from 'containers/App/actions';
+import { exportRows, setExportingParams, makeFullReport } from 'containers/App/actions';
 import { Button, Spin } from 'antd';
 import GetContainerDimensions from 'react-dimensions';
 import 'fixed-data-table-2/dist/fixed-data-table.min.css';
 import className from '../fixedDataTableStyle';
+import ReportButton from 'components/ReportButton';
 
 import messages from './messages';
 
@@ -80,7 +81,8 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
 
   render() {
     const { intl } = this.context;
-    const { containerWidth, containerHeight, product, sell, buy, loading, exporting, error, exportRows } = this.props;
+    const { containerWidth, containerHeight, product, sell, buy, loading, exporting, error, exportRows,
+      makingFullReport, makeFullReport } = this.props;
     const _buy = buy.map(x => transform(x, 'buy'));
     const _sell = sell.map(x => transform(x, 'sell'));
     const data = _buy.concat(_sell).sort((a, b) => a.get('date') - b.get('date'));
@@ -97,7 +99,7 @@ export class ProductPage extends React.PureComponent { // eslint-disable-line re
           <SubHeader>
             <ToolBar>
               <LeftTool>
-                <div>Yeah, right.</div>
+                <ReportButton type="full" loading={makingFullReport} onClick={year => makeFullReport(year, product.get('id'))} />
               </LeftTool>
               <RightTool>
                 <ToolBarButton type="primary" icon="file-excel" loading={exporting} onClick={() => exportRows(data)}>
@@ -167,6 +169,7 @@ const mapStateToProps = createStructuredSelector({
   loading: selectLoading(),
   error: selectError(),
   exporting: selectExporting(),
+  makingFullReport: selectMakingFullReport(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -174,6 +177,7 @@ function mapDispatchToProps(dispatch) {
     fetchProduct: id => dispatch(fetchProduct(id)),
     exportRows: rows => dispatch(exportRows(rows)),
     setExportingParams: params => dispatch(setExportingParams(params)),
+    makeFullReport: (year, id) => dispatch(makeFullReport(year, id)),
   };
 }
 

@@ -19,7 +19,19 @@ const selectError = () => createSelector(
   (substate) => substate.get('error'),
 );
 
+const selectMakingFullReport = () => createSelector(
+  selectApp(),
+  (substate) => substate.get('makingFullReport'),
+);
+
+const selectMakingSummaryReport = () => createSelector(
+  selectApp(),
+  (substate) => substate.get('makingSummaryReport'),
+);
+
 export {
+  selectMakingFullReport,
+  selectMakingSummaryReport,
   selectExportingParams,
   selectExporting,
   selectError,

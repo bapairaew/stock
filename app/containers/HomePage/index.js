@@ -7,13 +7,18 @@ import { selectQuery, selectProducts, selectLoading, selectError } from './selec
 import { fetchProducts } from './actions';
 import { FormattedMessage } from 'react-intl';
 import ProductCard from 'components/ProductCard';
-import { ErrorBox } from 'components/Layout';
+import { ErrorBox, SubHeader } from 'components/Layout';
 import className from './inputStyle';
 import { Form, Icon, Input, Button, Spin } from 'antd';
-import { StyledForm, CardContainer, StyledCard, Body, Details, H1, H2, H3, Number, Remaining } from './Elements';
-const FormItem = Form.Item;
+import { StyledForm, CardContainer, StyledCard, Body, Details, H1, H2, H3, Number, Remaining, ReportButtonContainer } from './Elements';
+import { selectMakingFullReport, selectMakingSummaryReport } from 'containers/App/selectors';
+import { makeFullReport, makeSummaryReport } from 'containers/App/actions';
+import ReportButton from 'components/ReportButton';
+import { ToolBar } from 'components/ToolBar';
 
 import messages from './messages';
+
+const FormItem = Form.Item;
 
 export class HomePage extends React.PureComponent {
 
@@ -28,11 +33,20 @@ export class HomePage extends React.PureComponent {
 
   render() {
     const { intl } = this.context;
-    const { fetch, products, loading, error, query, form: { getFieldDecorator } } = this.props;
+    const { fetch, products, loading, error, query,
+      makingFullReport, makeFullReport,
+      makingSummaryReport, makeSummaryReport,
+      form: { getFieldDecorator } } = this.props;
 
     return (
       <div>
         <Helmet title={intl.formatMessage(messages.title)} />
+        <SubHeader>
+          <ToolBar>
+            <ReportButton type="full" loading={makingFullReport} onClick={year => makeFullReport(year)} />
+            <ReportButton type="summary" loading={makingSummaryReport} onClick={year => makeSummaryReport(year)} />
+          </ToolBar>
+        </SubHeader>
         <StyledForm onSubmit={e => {
             e.preventDefault();
             fetch({ text: this.props.form.getFieldValue('text'), limit: 27 })
@@ -77,11 +91,15 @@ const mapStateToProps = createStructuredSelector({
   products: selectProducts(),
   loading: selectLoading(),
   error: selectError(),
+  makingFullReport: selectMakingFullReport(),
+  makingSummaryReport: selectMakingSummaryReport(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
     fetch: query => dispatch(fetchProducts(query)),
+    makeFullReport: year => dispatch(makeFullReport(year)),
+    makeSummaryReport: year => dispatch(makeSummaryReport(year)),
   };
 }
 

@@ -15,9 +15,10 @@ import { exportRowsSuccess, exportRowsFailure,
 import request from 'utils/request';
 import qs from 'qs';
 import download from 'utils/download';
+import moment from 'moment-timezone';
 
 // Common
-export function* download(action) {
+export function* downloadAction(action) {
   const { url, name } = action;
   yield download(url, name);
 }
@@ -54,7 +55,7 @@ export function* exportDataSaga() {
 
 // Export success
 export function* exportDataSuccessWatcher() {
-  yield fork(takeLatest, EXPORT_SUCCESS, download);
+  yield fork(takeLatest, EXPORT_SUCCESS, downloadAction);
 }
 
 export function* exportDataSuccessSaga() {
@@ -68,7 +69,7 @@ export function* exportDataSuccessSaga() {
 export function* fullReport(action) {
   try {
     const { year, id } = action;
-    const requestURL = `/api/v0/report/full/${year}${id ? `?id=${id}` : ''}`;
+    const requestURL = `/api/v0/report/full/${year}?timezone=${moment.tz.guess()}${id ? `&id=${id}` : ''}`;
     const { url } = yield call(request, requestURL);
     yield put(makeFullReportSuccess(url));
   } catch (err) {
@@ -90,7 +91,7 @@ export function* fullReportSaga() {
 
 // Full report success
 export function* fullReportSuccessWatcher() {
-  yield fork(takeLatest, MAKE_FULL_REPORT_SUCCESS, download);
+  yield fork(takeLatest, MAKE_FULL_REPORT_SUCCESS, downloadAction);
 }
 
 export function* fullReportSuccessSaga() {
@@ -104,7 +105,7 @@ export function* fullReportSuccessSaga() {
 export function* summaryReport(action) {
   try {
     const { year } = action;
-    const requestURL = `/api/v0/report/full/${year}`;
+    const requestURL = `/api/v0/report/summary/${year}?timezone=${moment.tz.guess()}`;
     const { url } = yield call(request, requestURL);
     yield put(makeSummaryReportSuccess(url));
   } catch (err) {
@@ -126,7 +127,7 @@ export function* summaryReportSaga() {
 
 // Full report success
 export function* summaryReportSuccessWatcher() {
-  yield fork(takeLatest, MAKE_SUMMARY_REPORT_REQUEST, download);
+  yield fork(takeLatest, MAKE_SUMMARY_REPORT_SUCCESS, downloadAction);
 }
 
 export function* summaryReportSuccessSaga() {

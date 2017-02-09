@@ -12,7 +12,7 @@ import { setExportingParams } from 'containers/App/actions';
 import { fetch, removeRow, revertRemoveRow, updateRow, setEndpoint, setNewRow, setImporter, focusItem, setEditingItems } from 'containers/DataTable/actions';
 import { selectQuery, selectData, selectCleanData, selectFocusingItem, selectEditingItems } from 'containers/DataTable/selectors';
 import { fromJS } from 'immutable';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import GetContainerDimensions from 'react-dimensions';
 import { StyledLayoutWithSideBar, StyledSider, StyledContent } from 'components/Layout';
 import RemainingBar from './RemainingBar';
@@ -49,7 +49,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       text: '',
       receiptId: '',
       startDate: moment().subtract(30, 'days').startOf('day').toDate(),
-      endDate: moment().endOf('day').toDate()
+      endDate: moment().endOf('day').toDate(),
     });
     setExportingParams({
       fields: [

@@ -11,11 +11,11 @@ export const StyledForm = styled(_Form)`
 export const CardContainer = styled.div`
   margin: 0 auto;
   width: 1080px;
-  min-height: 600px;
   display: flex;
   flex-wrap: wrap;
   overflow: auto;
-  height: 600px;
+  height: 530px;
+  justify-content: center;
 `;
 
 const _Card = ({ ...props }) => (

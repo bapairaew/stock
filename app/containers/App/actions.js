@@ -68,7 +68,7 @@ export function makeFullReportFailure(error) {
 export function makeSummaryReport(year) {
   return {
     type: MAKE_SUMMARY_REPORT_REQUEST,
-    rows,
+    year,
   };
 }
 

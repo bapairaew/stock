@@ -67,7 +67,10 @@ const getFullReport = (_sell, _buy, product, year, startDate, endDate) => {
   };
 };
 
-const makeDateRange = year => [ new Date(`${+year}-01-01T00:00:00.000Z`), new Date(`${(+year + 1)}-01-01T00:00:00.000Z`) ];
+// TODO: `${(+year)}-12-31T16:59:59.999Z` is not universally good...
+const getEndDate = year => year === (new Date()).getFullYear() ? new Date() : new Date(`${(+year)}-12-31T16:59:59.999Z`);
+const makeDateRange = year => [ new Date(`${+year}-01-01T00:00:00.000Z`), getEndDate(year) ];
+const addIndex = (obj, index) => { console.log(index); obj.index = index; return obj; }
 
 const makeSummaryReport = (req, res, products, year) => {
   const [ startDate, endDate ] = makeDateRange(year);
@@ -78,15 +81,28 @@ const makeSummaryReport = (req, res, products, year) => {
     ])
     .then(results => {
       const [ sell, buy ] = results;
-      const report = getFullReport(sell, buy, product, year, startDate, endDate);
-      delete report.transactions;   // would this improve performance??
-      return report;
+      const productReport = getFullReport(sell, buy, product, year, startDate, endDate);
+
+      if (productReport) {
+        delete productReport.transactions;   // would this improve performance??
+      }
+
+      return productReport;
     });
   }))
-  .then(reports => {
-    // TODO:
-    console.log(reports);
-    res.status(200).json(reports);
+  .then(products => {
+    const report = {
+      products: products.filter(p => p).sort((p1, p2) => p1.product.id.localeCompare(p2.product.id)).map(p => addIndex(p)),
+      date: format(endDate),
+      sumOfBuy: products.reduce((sum, product) => sum + (product && product.total.buy || 0), 0),
+      sumOfSell: products.reduce((sum, product) => sum + (product && product.total.sell || 0), 0),
+    };
+    report.sumOfRemaining = report.sumOfBuy - report.sumOfSell;
+    const bytes = fillTemplate('summary', report);
+    const name = cleanName(`summary-${year}-${gen()}`);
+    const file = temp(name);
+    writeBinary(file, bytes);
+    res.status(200).json({ url: `/api/v0/misc/download/${name}.xlsx` });
   })
   .catch(err => {
     res.status(500).send(log(err));
@@ -95,7 +111,6 @@ const makeSummaryReport = (req, res, products, year) => {
 
 const makeFullReport = (req, res, products, year) => {
   const [ startDate, endDate ] = makeDateRange(year);
-  // const files = [];
   Promise.all(products.map(product => {
     return Promise.all([
       Sell.find({ product: product._id }).lean(),
@@ -104,28 +119,18 @@ const makeFullReport = (req, res, products, year) => {
     .then(results => {
       const [ sell, buy ] = results;
       const report = getFullReport(sell, buy, product, year, startDate, endDate);
-
-      // fill template
       const bytes = fillTemplate('report', report);
-
-      // write to file
       const file = temp(cleanName(`${product.id}-${gen()}`));
       writeBinary(file, bytes);
-
-      // // add path to files
-      // files.push(file);
       return file;
     });
   }))
   .then(files => {
-    // zip files
-    const zipName = `${year}-${gen()}`;
+    const zipName = `report-${year}-${gen()}`;
     zip(temp(zipName), files.map(f => { return { path: f, name: `${name(f)}.xlsx` } }), (err) => {
       if (err) return res.status(500).send(log(err));
-      // delete files
       files.forEach(f => remove(f));
-      // stream back
-      res.json({ url: `/api/v0/misc/download/${zipName}.zip` });
+      res.status(200).json({ url: `/api/v0/misc/download/${zipName}.zip` });
     });
   })
   .catch(err => {
@@ -135,7 +140,8 @@ const makeFullReport = (req, res, products, year) => {
 
 const makeReport = (req, res, maker) => {
   const { year } = req.params;
-  const { id } = req.query || {};
+  // TODO: use timezone
+  const { id, timezone } = req.query || {};
 
   if (id) {
     Product.findOne({ id: id })

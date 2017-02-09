@@ -209,6 +209,7 @@
     "lodash": "4.16.4",
     "minimist": "1.2.0",
     "moment": "^2.17.1",
+    "moment-timezone": "^0.5.11",
     "mongoose": "^4.7.6",
     "multer": "^1.2.1",
     "passport": "^0.3.2",
