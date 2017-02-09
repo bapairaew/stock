@@ -10,8 +10,8 @@ import { EXPORT_REQUEST, EXPORT_SUCCESS,
   MAKE_SUMMARY_REPORT_SUCCESS } from './constants';
 import { LOCATION_CHANGE } from 'react-router-redux';
 import { exportRowsSuccess, exportRowsFailure,
-  makeFullReport, makeFullReportSuccess,
-  makeSummaryReport, makeSummaryReportSuccess } from './actions';
+  makeFullReportSuccess, makeFullReportFailure,
+  makeSummaryReportSuccess, makeSummaryReportFailure } from './actions';
 import request from 'utils/request';
 import qs from 'qs';
 import download from 'utils/download';
@@ -21,20 +21,6 @@ export function* download(action) {
   const { url, name } = action;
   yield download(url, name);
 }
-
-export function* report(action) {
-  try {
-    const { type, year, id } = action;
-    const _type = type === MAKE_FULL_REPORT_FAILURE ? 'full' : 'summary';
-    const requestURL = `/api/v0/report/${_type}/${year}${id ? `?id=${id}` : ''}`;
-    const { url } = yield call(request, requestURL);
-    yield put(makeFullReportSuccess(url));
-  } catch (err) {
-    yield put(makeFullReportFailure(err));
-    throw err;
-  }
-}
-
 
 // Export
 export function* exportData(action) {
@@ -79,8 +65,20 @@ export function* exportDataSuccessSaga() {
 }
 
 // Full Report
+export function* fullReport(action) {
+  try {
+    const { year, id } = action;
+    const requestURL = `/api/v0/report/full/${year}${id ? `?id=${id}` : ''}`;
+    const { url } = yield call(request, requestURL);
+    yield put(makeFullReportSuccess(url));
+  } catch (err) {
+    yield put(makeFullReportFailure(err));
+    throw err;
+  }
+}
+
 export function* fullReportWatcher() {
-  yield fork(takeLatest, MAKE_FULL_REPORT_REQUEST, report);
+  yield fork(takeLatest, MAKE_FULL_REPORT_REQUEST, fullReport);
 }
 
 export function* fullReportSaga() {
@@ -102,9 +100,21 @@ export function* fullReportSuccessSaga() {
   yield cancel(watcher);
 }
 
-// Summart report
+// Summary report
+export function* summaryReport(action) {
+  try {
+    const { year } = action;
+    const requestURL = `/api/v0/report/full/${year}`;
+    const { url } = yield call(request, requestURL);
+    yield put(makeSummaryReportSuccess(url));
+  } catch (err) {
+    yield put(makeSummaryReportFailure(err));
+    throw err;
+  }
+}
+
 export function* summaryReportWatcher() {
-  yield fork(takeLatest, MAKE_SUMMARY_REPORT_REQUEST, report);
+  yield fork(takeLatest, MAKE_SUMMARY_REPORT_REQUEST, summaryReport);
 }
 
 export function* summaryReportSaga() {
