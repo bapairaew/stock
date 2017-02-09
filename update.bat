@@ -1,1 +1,1 @@
-start cmd.exe /C git pull
+start cmd.exe /C git pull & npm install
