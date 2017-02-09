@@ -6,13 +6,13 @@ const { name, remove, writeBinary, temp, zip, cleanName } = require('../utils/fi
 const { log } = require('../utils/log');
 const { gen } = require('../utils/id');
 const { isAuthenticated } = require('../utils/auth');
-const { format } = require('../utils/date');
+const { format, currentYear, startOfYear, endOfYear } = require('../utils/date');
 
 const Product = require('../models/Product');
 const Buy = require('../models/Buy');
 const Sell = require('../models/Sell');
 
-const bringForwardId = 'ยอดยกมา';
+const bringForwardId = 'ยอดยกมา ';
 
 const processTransactions = (transactions, product, startDate, endDate) => transactions.reduce((arr, b) => {
   if (b.receiptId === bringForwardId) {
@@ -31,11 +31,9 @@ const processTransactions = (transactions, product, startDate, endDate) => trans
 
 const assignType = (item, type) => { item.type = type; return item; };
 
-const combineTransaction = (buy, sell) => {
-  return Object.assign({}, buy, { amount: buy.amount - sell.amount });
-};
+const combineTransaction = (buy, sell) => Object.assign({}, buy, { amount: buy.amount - sell.amount });
 
-const getFullReport = (_sell, _buy, product, year, startDate, endDate) => {
+const getFullReport = (_sell, _buy, product, year, startDate, endDate, timezone) => {
   // filter out after endDate, sum before startDate
   // build json for templating
   const buy = processTransactions(_buy, product, startDate, endDate).map(b => assignType(b, 'buy'));
@@ -55,7 +53,7 @@ const getFullReport = (_sell, _buy, product, year, startDate, endDate) => {
       .map(_t => {
         const t = Object.assign({}, _t);
         remaining = remaining + (t.type === 'buy' ? 1 : -1) * t.amount;
-        t.date = format(t.date);
+        t.date = format(t.date, timezone);
         t.remaining = remaining;
         t[t.type] = t.amount;
         total[t.type] += t.amount;
@@ -68,12 +66,11 @@ const getFullReport = (_sell, _buy, product, year, startDate, endDate) => {
 };
 
 // TODO: `${(+year)}-12-31T16:59:59.999Z` is not universally good...
-const getEndDate = year => year === (new Date()).getFullYear() ? new Date() : new Date(`${(+year)}-12-31T16:59:59.999Z`);
-const makeDateRange = year => [ new Date(`${+year}-01-01T00:00:00.000Z`), getEndDate(year) ];
-const addIndex = (obj, index) => { console.log(index); obj.index = index; return obj; }
+const getEndDate = (year, timezone) => year === currentYear() ? new Date() : endOfYear(year, timezone);
+const makeDateRange = (year, timezone) => [ startOfYear(year, timezone), getEndDate(year, timezone) ];
 
-const makeSummaryReport = (req, res, products, year) => {
-  const [ startDate, endDate ] = makeDateRange(year);
+const makeSummaryReport = (req, res, products, year, timezone) => {
+  const [ startDate, endDate ] = makeDateRange(year, timezone);
   Promise.all(products.map(product => {
     return Promise.all([
       Sell.find({ product: product._id }).lean(),
@@ -81,7 +78,7 @@ const makeSummaryReport = (req, res, products, year) => {
     ])
     .then(results => {
       const [ sell, buy ] = results;
-      const productReport = getFullReport(sell, buy, product, year, startDate, endDate);
+      const productReport = getFullReport(sell, buy, product, year, startDate, endDate, timezone);
 
       if (productReport) {
         delete productReport.transactions;   // would this improve performance??
@@ -92,12 +89,13 @@ const makeSummaryReport = (req, res, products, year) => {
   }))
   .then(products => {
     const report = {
-      products: products.filter(p => p).sort((p1, p2) => p1.product.id.localeCompare(p2.product.id)).map(p => addIndex(p)),
-      date: format(endDate),
+      products: products.filter(p => p).sort((p1, p2) => p1.product.id.localeCompare(p2.product.id)),
+      date: format(endDate, timezone),
       sumOfBuy: products.reduce((sum, product) => sum + (product && product.total.buy || 0), 0),
       sumOfSell: products.reduce((sum, product) => sum + (product && product.total.sell || 0), 0),
     };
     report.sumOfRemaining = report.sumOfBuy - report.sumOfSell;
+    report.products.forEach((p, index) => { p.index = index + 1; });
     const bytes = fillTemplate('summary', report);
     const name = cleanName(`summary-${year}-${gen()}`);
     const file = temp(name);
@@ -109,8 +107,8 @@ const makeSummaryReport = (req, res, products, year) => {
   });
 };
 
-const makeFullReport = (req, res, products, year) => {
-  const [ startDate, endDate ] = makeDateRange(year);
+const makeFullReport = (req, res, products, year, timezone) => {
+  const [ startDate, endDate ] = makeDateRange(year, timezone);
   Promise.all(products.map(product => {
     return Promise.all([
       Sell.find({ product: product._id }).lean(),
@@ -118,14 +116,18 @@ const makeFullReport = (req, res, products, year) => {
     ])
     .then(results => {
       const [ sell, buy ] = results;
-      const report = getFullReport(sell, buy, product, year, startDate, endDate);
+      const report = getFullReport(sell, buy, product, year, startDate, endDate, timezone);
+      if (!report) {
+        return;
+      }
       const bytes = fillTemplate('report', report);
       const file = temp(cleanName(`${product.id}-${gen()}`));
       writeBinary(file, bytes);
       return file;
     });
   }))
-  .then(files => {
+  .then(_files => {
+    const files = _files.filter(f => f);
     const zipName = `report-${year}-${gen()}`;
     zip(temp(zipName), files.map(f => { return { path: f, name: `${name(f)}.xlsx` } }), (err) => {
       if (err) return res.status(500).send(log(err));
@@ -148,14 +150,14 @@ const makeReport = (req, res, maker) => {
       .lean()
       .exec(function (err, product) {
           if (err) return res.status(500).send(log(err));
-          maker(req, res, [product], year);
+          maker(req, res, [product], year, timezone);
       });
   } else {
     Product.find({})
       .lean()
       .exec(function (err, products) {
           if (err) return res.status(500).send(log(err));
-          maker(req, res, products, year);
+          maker(req, res, products, year, timezone);
       });
   }
 };
