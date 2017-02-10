@@ -69,9 +69,8 @@ const getFullReport = (_sell, _buy, product, year, startDate, endDate, timezone)
 const getEndDate = (year, timezone) => year === currentYear() ? new Date() : endOfYear(year, timezone);
 const makeDateRange = (year, timezone) => [ startOfYear(year, timezone), getEndDate(year, timezone) ];
 
-const makeSummaryReport = (req, res, products, year, timezone) => {
-  const [ startDate, endDate ] = makeDateRange(year, timezone);
-  Promise.all(products.map(product => {
+const getReports = (sell, buy, products, year, startDate, endDate, timezone, removeTransactions) => {
+  return Promise.all(products.map(product => {
     return Promise.all([
       Sell.find({ product: product._id }).lean(),
       Buy.find({ product: product._id }).lean(),
@@ -80,13 +79,18 @@ const makeSummaryReport = (req, res, products, year, timezone) => {
       const [ sell, buy ] = results;
       const productReport = getFullReport(sell, buy, product, year, startDate, endDate, timezone);
 
-      if (productReport) {
+      if (removeTransactions && productReport) {
         delete productReport.transactions;   // would this improve performance??
       }
 
       return productReport;
     });
-  }))
+  }));
+};
+
+const makeSummaryReport = (req, res, products, year, timezone) => {
+  const [ startDate, endDate ] = makeDateRange(year, timezone);
+  getReports(sell, buy, products, year, startDate, endDate, timezone, true)
   .then(products => {
     const report = {
       products: products.filter(p => p).sort((p1, p2) => p1.product.id.localeCompare(p2.product.id)),
@@ -109,27 +113,19 @@ const makeSummaryReport = (req, res, products, year, timezone) => {
 
 const makeFullReport = (req, res, products, year, timezone) => {
   const [ startDate, endDate ] = makeDateRange(year, timezone);
-  Promise.all(products.map(product => {
-    return Promise.all([
-      Sell.find({ product: product._id }).lean(),
-      Buy.find({ product: product._id }).lean(),
-    ])
-    .then(results => {
-      const [ sell, buy ] = results;
-      const report = getFullReport(sell, buy, product, year, startDate, endDate, timezone);
-      if (!report) {
-        return;
-      }
+  getReports(sell, buy, products, year, startDate, endDate, timezone)
+  .then(_reports => {
+    const reports = _reports.filter(f => f);
+
+    const files = reports.map(report => {
       const bytes = fillTemplate('report', report);
       const file = temp(cleanName(`${product.id}-${gen()}`));
       writeBinary(file, bytes);
-      return file;
+      return { path: file, name: `${name(file)}.xlsx` } };
     });
-  }))
-  .then(_files => {
-    const files = _files.filter(f => f);
+
     const zipName = `report-${year}-${gen()}`;
-    zip(temp(zipName), files.map(f => { return { path: f, name: `${name(f)}.xlsx` } }), (err) => {
+    zip(temp(zipName), files, (err) => {
       if (err) return res.status(500).send(log(err));
       files.forEach(f => remove(f));
       res.status(200).json({ url: `/api/v0/misc/download/${zipName}.zip` });
