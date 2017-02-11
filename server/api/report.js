@@ -154,7 +154,7 @@ const makeCombinedFullReport = (req, res, products, year, timezone) => {
       report.productModel = [report.product.model];
       return report;
     });
-    const chunkSize = 500;
+    const chunkSize = 2000;
     const strategies = makeCombinedTemplate('report', reports, chunkSize);
     const files = strategies.map((strategy, index) => {
       const { path, reports } = strategy;
