@@ -36,7 +36,7 @@ const InputCellContainer = styled.div`
 
 const getRow = ({ data, rowIndex }) => data.get(rowIndex);
 
-const getInputProperty = ({ row, cleanData, rowIndex, col, onUpdate, setter = v => v  }) => {
+const getInputProperty = ({ row, cleanData, rowIndex, col, onUpdate, setter = v => v }) => {
   const value = setter(row.getIn(col));
   const cleanValue = setter(cleanData.getIn([rowIndex].concat(col)));
   return { value, cleanValue, removed: row.getIn(['removed']), onUpdate: (value) => onUpdate({ value, rowIndex, col }) };

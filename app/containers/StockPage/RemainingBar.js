@@ -73,7 +73,7 @@ export class RemainingBar extends React.PureComponent {
 
     return (
       <CardContainer height={height}>
-        {products.map((p, i) => <ProductCard key={i} focused={editingProduct && editingProduct.get('_id') === p.product.get('_id')} endpoint={p => `/api/v0/products/sum/${p.get('_id')}`} {...p} />)}
+        {products.filter(p => p.product.get('_id')).map((p, i) => <ProductCard key={i} focused={editingProduct && editingProduct.get('_id') === p.product.get('_id')} endpoint={p => `/api/v0/products/sum/${p.get('_id')}`} {...p} />)}
       </CardContainer>
     );
   }

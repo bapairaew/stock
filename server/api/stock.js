@@ -28,10 +28,10 @@ const search = (Model, req, res) => {
         { model: { $regex: text, $options: 'i' } },
       ]})
     .lean()
-    .sort({ date: 1 })
+    .sort({ date: 1, order: 1 })
     .exec(function (err, results) {
       if (err) return res.status(500).send(log(err));
-      res.status(200).json(results.filter(r => r.product));
+      res.status(200).json(results);
     });
 };
 
@@ -46,7 +46,7 @@ router.get('/buy', isAuthenticated, (req, res) => {
 const parseProps = ({ date, product, order, receiptId, amount, price }) => {
   return {
     date: new Date(date),
-    product: product._id,
+    product: product && product._id || null,
     order,
     receiptId,
     amount,
@@ -55,14 +55,14 @@ const parseProps = ({ date, product, order, receiptId, amount, price }) => {
 };
 
 const saveAll = (Model, rows, res) => {
-  const { news, changes, removes } = classify(rows);
+  const { adds, changes, removes } = classify(rows);
 
   return Promise.all(join(
-    news.map(props => Model.create(parseProps(props))),
+    adds.map(props => Model.create(parseProps(props))),
     changes.map(props => Model.findOneAndUpdate({ _id: props._id }, { $set: parseProps(props) })),
     removes.map(({ _id }) => Model.findOneAndRemove({ _id }))
   ))
-  .then(results => res.status(200).json(parseResults(results, { news, changes, removes })))
+  .then(results => res.status(200).json(parseResults(results, { adds, changes, removes })))
   .catch(err => res.status(500).send(log(err)));
 };
 

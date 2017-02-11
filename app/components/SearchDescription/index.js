@@ -14,10 +14,10 @@ const SearchDescriptionContainer = styled.div`
 
 const formatDate = (date) => (date && moment(date).format('DD/MM/YYYY')) || '';
 const getDateRageText = (start, end) => ((start && end) && `${formatDate(start)} - ${formatDate(end)}`) || '';
-const getSearchText = (text) => (text && `"${text}" `) || '';
+const getSearchText = text => text.length > 0 ? `"${text.join(', ')}" ` : '';
 
 const getQueryDisplayString = (query) => (query &&
-  `${getSearchText(query.get('text'))}${getDateRageText(query.get('startDate'), query.get('endDate'))}`) || '';
+  `${getSearchText([query.get('text'), query.get('receiptId')].filter(t => t))}${getDateRageText(query.get('startDate'), query.get('endDate'))}`) || '';
 
 function SearchDescription({ query }) {
   return (

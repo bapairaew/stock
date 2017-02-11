@@ -89,12 +89,16 @@ function dataTableReducer(state = initialState, action) {
         .set('loading', true);
     case SAVE_SUCCESS:
       let idx = 0;
-      let toSavestate = state
+      const savingState = state
         .set('loading', false)
-        .update('data', arr => arr.filter(x => !x.get('removed')))
-        .update('data', arr => arr.map(r => r.get('_id') ? r : r.set('_id', addedRows[idx++]._id)));
-      return toSavestate
-        .set('cleanData', toSavestate.get('data'));
+        .update('data', arr => arr.filter(r => !r.get('removed')))
+        .update('data', arr => arr.map(r => r.get('_id') ? r :
+          r.set('_id', addedRows[idx]._id)
+          .set('product', r.get('product') || fromJS(addedRows[idx++].product))
+        ));
+      console.log(savingState.get('data').toJS());
+      return savingState
+        .set('cleanData', savingState.get('data'));
     case SAVE_FAILURE:
       return state
         .set('loading', false)

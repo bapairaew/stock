@@ -18,6 +18,13 @@ const locales = {
   th: thTranslationMessages,
 };
 
+const fillProduct = row => {
+  if (!row.product) {
+    row.product = { id: '', name: '', model: '' };
+  }
+  return row;
+};
+
 // Fetch
 export function* fetchData() {
   const query = yield select(selectQuery());
@@ -26,7 +33,8 @@ export function* fetchData() {
 
   try {
     const data = yield call(request, requestURL);
-    yield put(fetchSuccess(data));
+    const productFilledData = data.map(r => fillProduct(r));
+    yield put(fetchSuccess(productFilledData));
   } catch (err) {
     yield put(fetchFailure(err));
     throw err;
@@ -56,7 +64,8 @@ export function* saveData(action) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(rows.toJS()),
     });
-    yield put(saveSuccess(addedRows));
+    const productFilledAddedRows = addedRows.map(r => fillProduct(r));
+    yield put(saveSuccess(productFilledAddedRows));
   } catch (err) {
     yield put(saveFailure(err));
     throw err;
