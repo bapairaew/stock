@@ -96,7 +96,6 @@ function dataTableReducer(state = initialState, action) {
           r.set('_id', addedRows[idx]._id)
           .set('product', r.get('product') || fromJS(addedRows[idx++].product))
         ));
-      console.log(savingState.get('data').toJS());
       return savingState
         .set('cleanData', savingState.get('data'));
     case SAVE_FAILURE:
