@@ -1,7 +1,8 @@
-const XLSX = require('XLSX');
+const XLSX = require('xlsx-style');
 const { temp, readFileSync } = require('../utils/file');
 const { gen } = require('../utils/id');
 const { format } = require('../utils/date');
+const { chunk } = require('../utils/array');
 const XlsxTemplate = require('xlsx-template');
 const path = require('path');
 
@@ -51,7 +52,7 @@ exports.generateFile = function (data) {
   return id;
 };
 
-exports.read = path => XLSX.readFile(path);
+exports.read = _path => XLSX.readFile(_path);
 
 exports.fillTemplate = function (name, obj) {
 	const templatePath = path.join(__dirname, '..', 'templates', `${name}.xlsx`);
@@ -63,6 +64,37 @@ exports.fillTemplate = function (name, obj) {
 	template.substitute(sheetNumber, obj);
 	// Get binary data
 	return template.generate();
+};
+
+exports.fillCombinedTemplate = function (templatePath, items) {
+	const data = readFileSync(templatePath, 'binary');
+	const template = new XlsxTemplate(data);
+	items.forEach(item => { template.substitute(item.name, item); });
+
+	return template.generate();
+};
+
+exports.makeCombinedTemplate = function (name, fullReports, chunkSize) {
+	const templatePath = path.join(__dirname, '..', 'templates', `${name}.xlsx`);
+  const templateWorkbook = XLSX.readFile(templatePath, { cellStyles: true });
+	const templateSheet = templateWorkbook.Sheets[templateWorkbook.SheetNames[0]];
+	const reportsChunk = chunk(fullReports, chunkSize);
+	return reportsChunk.map(reports => {
+		const id = gen();
+		const sheets = {};
+		reports.forEach(report => { sheets[report.name] = templateSheet; });
+		const path = temp(id);
+	  XLSX.writeFile({
+	    SheetNames: reports.map(r => r.name),
+	    Sheets: sheets,
+		},
+		path, { bookSST: true });
+
+		return {
+			reports: reports,
+			path: path
+		};
+	});
 };
 
 exports.print = function (value) {

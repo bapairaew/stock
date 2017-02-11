@@ -11,7 +11,7 @@ import { ErrorBox, SubHeader } from 'components/Layout';
 import className from './inputStyle';
 import { Form, Icon, Input, Button, Spin } from 'antd';
 import { StyledForm, CardContainer, StyledCard, Body, Details, H1, H2, H3, Number, Remaining, ReportButtonContainer } from './Elements';
-import { selectMakingFullReport, selectMakingSummaryReport } from 'containers/App/selectors';
+import { selectMakingFullReport, selectMakingSummaryReport, selectError as selectAppError } from 'containers/App/selectors';
 import { makeFullReport, makeSummaryReport } from 'containers/App/actions';
 import ReportButton from 'components/ReportButton';
 import { ToolBar } from 'components/ToolBar';
@@ -33,7 +33,7 @@ export class HomePage extends React.PureComponent {
 
   render() {
     const { intl } = this.context;
-    const { fetch, products, loading, error, query,
+    const { fetch, products, loading, error, query, appError,
       makingFullReport, makeFullReport,
       makingSummaryReport, makeSummaryReport,
       form: { getFieldDecorator } } = this.props;
@@ -47,6 +47,7 @@ export class HomePage extends React.PureComponent {
             <ReportButton type="summary" loading={makingSummaryReport} onClick={year => makeSummaryReport(year)} />
           </ToolBar>
         </SubHeader>
+        <ErrorBox visible={!!appError}>{appError + ''}</ErrorBox>
         <StyledForm onSubmit={e => {
             e.preventDefault();
             fetch({ text: this.props.form.getFieldValue('text'), limit: 27 })
@@ -91,6 +92,7 @@ const mapStateToProps = createStructuredSelector({
   products: selectProducts(),
   loading: selectLoading(),
   error: selectError(),
+  appError: selectAppError(),
   makingFullReport: selectMakingFullReport(),
   makingSummaryReport: selectMakingSummaryReport(),
 });

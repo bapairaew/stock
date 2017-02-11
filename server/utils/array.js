@@ -7,3 +7,17 @@ exports.flatten = function (arr) {
     return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
   }, []);
 };
+
+exports.chunk = (arr, size) => {
+  return arr.reduce((sum, item, index) => {
+    const chunkNumber = Math.floor(index / size);
+
+    if (!sum[chunkNumber]) {
+      sum[chunkNumber] = [];
+    }
+
+    sum[chunkNumber].push(item);
+
+    return sum;
+  }, []);
+};

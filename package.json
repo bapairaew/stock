@@ -236,6 +236,7 @@
     "webpack": "^2.2.0-rc.3",
     "whatwg-fetch": "1.0.0",
     "xlsx": "^0.8.1",
+    "xlsx-style": "^0.8.13",
     "xlsx-template": "0.0.7"
   },
   "devDependencies": {
