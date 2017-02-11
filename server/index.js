@@ -82,4 +82,4 @@ app.listen(port, (err) => {
   }
 
   opn('http://stock/', {app: 'chrome'});
-});
+}).timeout = MAX_TIMEOUT;

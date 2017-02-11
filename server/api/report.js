@@ -114,11 +114,9 @@ const makeSummaryReport = (req, res, products, year, timezone) => {
 const zipReports = (res, files, year) => {
   const zipName = `report-${year}-${gen()}`;
 
-  console.log('ziping: ', zipName);
   zip(temp(zipName), files, (err) => {
     if (err) return res.status(500).send(log(err));
     files.forEach(f => remove(f.path));
-    console.log('zip done: ', `/api/v0/misc/download/${zipName}.zip`);
     res.status(200).json({ url: `/api/v0/misc/download/${zipName}.zip` });
   });
 };
@@ -157,23 +155,15 @@ const makeCombinedFullReport = (req, res, products, year, timezone) => {
       return report;
     });
     const chunkSize = 500;
-    console.log('making combined template');
     const strategies = makeCombinedTemplate('report', reports, chunkSize);
-    console.log('strategies size: ', strategies.length);
-    console.log('strategies: ', strategies.map(s => s.path));
     const files = strategies.map((strategy, index) => {
       const { path, reports } = strategy;
-      console.log('filling: ', path);
-      console.log('size: ', reports.length);
       const bytes = fillCombinedTemplate(path, reports);
-      // remove(path);
+      remove(path);
       const resultPath = temp(gen());
       writeBinary(resultPath, bytes);
-      console.log('done: ', resultPath);
       return { path: resultPath, name: `report-${index}.xlsx` };
     });
-
-    console.log('all done');
     zipReports(res, files, year);
   })
   .catch(err => {

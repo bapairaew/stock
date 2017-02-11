@@ -71,7 +71,7 @@ export function* fullReport(action) {
   try {
     const { year, id } = action;
     const requestURL = `/api/v0/report/full/${year}?timezone=${moment.tz.guess()}${id ? `&id=${id}` : ''}`;
-    const { url } = yield call(request, requestURL, { timeout: 0 });
+    const { url } = yield call(request, requestURL);
     yield put(makeFullReportSuccess(url, path.basename(url)));
   } catch (err) {
     yield put(makeFullReportFailure(err));
