@@ -8,7 +8,7 @@ const pkg = require(path.resolve(process.cwd(), 'package.json'));
 const addDevMiddlewares = (app, webpackConfig) => {
   const webpack = require('webpack');
   const webpackDevMiddleware = require('webpack-dev-middleware');
-  const webpackHotMiddleware = require('webpack-hot-middleware');
+  // const webpackHotMiddleware = require('webpack-hot-middleware');
   const compiler = webpack(webpackConfig);
   const middleware = webpackDevMiddleware(compiler, {
     noInfo: true,
@@ -18,7 +18,7 @@ const addDevMiddlewares = (app, webpackConfig) => {
   });
 
   app.use(middleware);
-  app.use(webpackHotMiddleware(compiler));
+  // app.use(webpackHotMiddleware(compiler));
 
   // Since webpackDevMiddleware uses memory-fs internally to store build
   // artifacts, we use it instead

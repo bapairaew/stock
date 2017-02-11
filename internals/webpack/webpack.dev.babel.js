@@ -12,7 +12,7 @@ const pkg = require(path.resolve(process.cwd(), 'package.json'));
 const dllPlugin = pkg.dllPlugin;
 
 const plugins = [
-  new webpack.HotModuleReplacementPlugin(), // Tell webpack we want hot reloading
+  // new webpack.HotModuleReplacementPlugin(), // Tell webpack we want hot reloading
   new webpack.NoEmitOnErrorsPlugin(),
   new webpack.ContextReplacementPlugin(/\.\/locale$/, 'empty-module', false, /js$/),
   new HtmlWebpackPlugin({
@@ -24,8 +24,8 @@ const plugins = [
 module.exports = require('./webpack.base.babel')({
   // Add hot reloading in development
   entry: [
-    'eventsource-polyfill', // Necessary for hot reloading with IE
-    'webpack-hot-middleware/client',
+    // 'eventsource-polyfill', // Necessary for hot reloading with IE
+    // 'webpack-hot-middleware/client',
     path.join(process.cwd(), 'app/app.js'), // Start with js/app.js
   ],
 
