@@ -25,6 +25,8 @@ exports.toProducts = (sheet, startRow, { id, name, model }) => {
   return products;
 };
 
+const date = excelDate => new Date((excelDate - (25567 + 1))*86400*1000 - (19 * 60 * 60 * 1000));
+
 exports.toTransactions = (sheet, startRow, { order, date, receiptId, product, amount, price }) => {
   console.log(`Parsing transactions…`);
   const transactions = [];
