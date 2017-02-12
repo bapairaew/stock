@@ -42,7 +42,8 @@
     "test:safari": "npm run test -- --browsers Safari",
     "test:ie": "npm run test -- --browsers IE",
     "coveralls": "cat ./coverage/lcov/lcov.info | coveralls",
-    "cleartemp": "rimraf __temp"
+    "cleartemp": "rimraf __temp",
+    "import": "node importer"
   },
   "lint-staged": {
     "*.js": "lint:eslint"
