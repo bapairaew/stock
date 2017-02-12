@@ -16,6 +16,7 @@ import request from 'utils/request';
 import qs from 'qs';
 import download from 'utils/download';
 import moment from 'moment-timezone';
+import path from 'path';
 
 // Common
 export function* downloadAction(action) {
@@ -71,7 +72,7 @@ export function* fullReport(action) {
     const { year, id } = action;
     const requestURL = `/api/v0/report/full/${year}?timezone=${moment.tz.guess()}${id ? `&id=${id}` : ''}`;
     const { url } = yield call(request, requestURL);
-    yield put(makeFullReportSuccess(url));
+    yield put(makeFullReportSuccess(url, path.basename(url)));
   } catch (err) {
     yield put(makeFullReportFailure(err));
     throw err;
@@ -107,7 +108,7 @@ export function* summaryReport(action) {
     const { year } = action;
     const requestURL = `/api/v0/report/summary/${year}?timezone=${moment.tz.guess()}`;
     const { url } = yield call(request, requestURL);
-    yield put(makeSummaryReportSuccess(url));
+    yield put(makeSummaryReportSuccess(url, path.basename(url)));
   } catch (err) {
     yield put(makeSummaryReportFailure(err));
     throw err;

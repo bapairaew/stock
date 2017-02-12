@@ -1,7 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 
-const { fillTemplate } = require('../utils/xlsx');
+const { fillTemplate, makeCombinedTemplate, fillCombinedTemplate } = require('../utils/xlsx');
 const { name, remove, writeBinary, temp, zip, cleanName } = require('../utils/file');
 const { log } = require('../utils/log');
 const { gen } = require('../utils/id');
@@ -69,9 +69,8 @@ const getFullReport = (_sell, _buy, product, year, startDate, endDate, timezone)
 const getEndDate = (year, timezone) => year === currentYear() ? new Date() : endOfYear(year, timezone);
 const makeDateRange = (year, timezone) => [ startOfYear(year, timezone), getEndDate(year, timezone) ];
 
-const makeSummaryReport = (req, res, products, year, timezone) => {
-  const [ startDate, endDate ] = makeDateRange(year, timezone);
-  Promise.all(products.map(product => {
+const getReports = (products, year, startDate, endDate, timezone, removeTransactions) => {
+  return Promise.all(products.map(product => {
     return Promise.all([
       Sell.find({ product: product._id }).lean(),
       Buy.find({ product: product._id }).lean(),
@@ -80,13 +79,18 @@ const makeSummaryReport = (req, res, products, year, timezone) => {
       const [ sell, buy ] = results;
       const productReport = getFullReport(sell, buy, product, year, startDate, endDate, timezone);
 
-      if (productReport) {
+      if (removeTransactions && productReport) {
         delete productReport.transactions;   // would this improve performance??
       }
 
       return productReport;
     });
-  }))
+  }));
+};
+
+const makeSummaryReport = (req, res, products, year, timezone) => {
+  const [ startDate, endDate ] = makeDateRange(year, timezone);
+  getReports(products, year, startDate, endDate, timezone, true)
   .then(products => {
     const report = {
       products: products.filter(p => p).sort((p1, p2) => p1.product.id.localeCompare(p2.product.id)),
@@ -107,33 +111,60 @@ const makeSummaryReport = (req, res, products, year, timezone) => {
   });
 };
 
+const zipReports = (res, files, year) => {
+  const zipName = `report-${year}-${gen()}`;
+
+  zip(temp(zipName), files, (err) => {
+    if (err) return res.status(500).send(log(err));
+    files.forEach(f => remove(f.path));
+    res.status(200).json({ url: `/api/v0/misc/download/${zipName}.zip` });
+  });
+};
+
 const makeFullReport = (req, res, products, year, timezone) => {
   const [ startDate, endDate ] = makeDateRange(year, timezone);
-  Promise.all(products.map(product => {
-    return Promise.all([
-      Sell.find({ product: product._id }).lean(),
-      Buy.find({ product: product._id }).lean(),
-    ])
-    .then(results => {
-      const [ sell, buy ] = results;
-      const report = getFullReport(sell, buy, product, year, startDate, endDate, timezone);
-      if (!report) {
-        return;
-      }
+  getReports(products, year, startDate, endDate, timezone)
+  .then(_reports => {
+    const reports = _reports.filter(f => f);
+
+    const files = reports.map(report => {
       const bytes = fillTemplate('report', report);
       const file = temp(cleanName(`${product.id}-${gen()}`));
       writeBinary(file, bytes);
-      return file;
+      return { path: file, name: `${name(file)}.xlsx` };
     });
-  }))
-  .then(_files => {
-    const files = _files.filter(f => f);
-    const zipName = `report-${year}-${gen()}`;
-    zip(temp(zipName), files.map(f => { return { path: f, name: `${name(f)}.xlsx` } }), (err) => {
-      if (err) return res.status(500).send(log(err));
-      files.forEach(f => remove(f));
-      res.status(200).json({ url: `/api/v0/misc/download/${zipName}.zip` });
+
+    zipReports(res, files, year);
+  })
+  .catch(err => {
+    res.status(500).send(log(err));
+  });
+};
+
+const makeCombinedFullReport = (req, res, products, year, timezone) => {
+  const [ startDate, endDate ] = makeDateRange(year, timezone);
+  getReports(products, year, startDate, endDate, timezone)
+  .then(completedReports => {
+    const reports = completedReports.filter(r => r).map((report, index) => {
+      report.index = index + 1;
+      report.name = cleanName(report.product.id);
+      // TODO: THIS IS WORKAROUND for xlsx-template generate same 'string' value as the first sheet in all other worksheets
+      report.productId = [report.product.id];
+      report.productName = [report.product.name];
+      report.productModel = [report.product.model];
+      return report;
     });
+    const chunkSize = 2000;
+    const strategies = makeCombinedTemplate('report', reports, chunkSize);
+    const files = strategies.map((strategy, index) => {
+      const { path, reports } = strategy;
+      const bytes = fillCombinedTemplate(path, reports);
+      remove(path);
+      const resultPath = temp(gen());
+      writeBinary(resultPath, bytes);
+      return { path: resultPath, name: `report-${index}.xlsx` };
+    });
+    zipReports(res, files, year);
   })
   .catch(err => {
     res.status(500).send(log(err));
@@ -167,7 +198,7 @@ router.get('/summary/:year', isAuthenticated, (req, res) => {
 });
 
 router.get('/full/:year', isAuthenticated, (req, res) => {
-  makeReport(req, res, makeFullReport);
+  makeReport(req, res, makeCombinedFullReport);
 });
 
 module.exports = router;

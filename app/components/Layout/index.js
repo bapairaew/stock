@@ -41,7 +41,7 @@ export const ErrorBox = styled.div`
   display: ${props => props.visible ? 'block' : 'none'};
   width: ${props => `${props.width || 300}px`};
   padding: 15px;
-  margin: 20px 0;
+  margin: 20px auto;
   background: #f00;
   color: #fff;
 `;
