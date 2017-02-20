@@ -8,7 +8,6 @@
   "author": "Narudom",
   "license": "MIT",
   "scripts": {
-    "app": "electron desktop/app",
     "analyze:clean": "rimraf stats.json",
     "preanalyze": "npm run analyze:clean",
     "analyze": "node ./internals/scripts/analyze.js",
@@ -44,7 +43,8 @@
     "test:ie": "npm run test -- --browsers IE",
     "coveralls": "cat ./coverage/lcov/lcov.info | coveralls",
     "cleartemp": "rimraf __temp",
-    "import": "node importer"
+    "import": "node importer",
+    "app": "electron windows/app"
   },
   "lint-staged": {
     "*.js": "lint:eslint"
@@ -261,6 +261,7 @@
     "cheerio": "0.22.0",
     "coveralls": "2.11.14",
     "css-loader": "0.25.0",
+    "electron": "^1.4.15",
     "empty-module": "0.0.2",
     "enzyme": "2.5.1",
     "eslint": "3.9.0",
