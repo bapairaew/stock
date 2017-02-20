@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Server</title>
+  <style>
+  body {
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+  }
+  .statuses_container {
+    display: flex;
+    align-content: center;
+    justify-content: space-around;
+  }
+  .status {
+    font-size: 14px;
+    background: #fff;
+    border-radius: 4px;
+    position: relative;
+    border: 1px solid #e9e9e9;
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    text-align: center;
+  }
+  .status_label {
+    font-size: .9em;
+    padding: 1em;
+  }
+  .status_text {
+    font-size: 2.4em;
+    padding: 1em;
+  }
+  .status_button {
+    padding: 10px;
+    color: #fff;
+    background-color: #108ee9;
+    border: none;
+  }
+  .controller {
+    margin: 20px;
+    text-align: center;
+  }
+  .dialog {
+    visibility: collapse;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+  }
+  .close_dialog {
+    font-size: 16px;
+    color: rgb(15,133,217);
+    background: transparent;
+    border: none;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0px 0px 7px rgba(0,0,0,.2);
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .log_container {
+    overflow: auto;
+  }
+  </style>
+</head>
+<body>
+  <div class="statuses_container">
+    <div class="status">
+      <span class="status_label">สถานะเซิร์ฟเวอร์</span>
+      <span class="status_text" id="server_status">รอสักครู่</span>
+      <button class="status_button" id="show_app_log">แสดงบันทึกแอพ</button>
+    </div>
+    <div class="status">
+      <span class="status_label">สถานะฐานข้อมูล</span>
+      <span class="status_text" id="database_status">รอสักครู่</span>
+      <button class="status_button" id="show_database_log">แสดงบันทึกฐานข้อมูล</button>
+    </div>
+    <div class="status">
+      <span class="status_label">เวอร์ชั่น</span>
+      <span class="status_text" id="version_status">รอสักครู่</span>
+      <button class="status_button" id="update_app">อัพเดตแอพ</button>
+    </div>
+  </div>
+  <div class="controller">
+    <button id="open_app">เปิดแอพ</button>
+  </div>
+  <div class="dialog">
+    <button id="close_node_log" class="close_dialog">ปิด</button>
+    <div class="log_container" id="node_log"></div>
+  </div>
+  <div class="dialog">
+    <button id="close_mongo_log" class="close_dialog">ปิด</button>
+    <div class="log_container" id="mongod_log"></div>
+  </div>
+
+  <script>
+  const STATUS_INTERVAL = 5 * 1000;
+  const spawn = require('child_process').spawn;
+  const shell = require('electron').shell;
+
+  // // Windows
+  // const mongod = spawn('mongod', ['--dbpath=G:\\database'], { cwd: process.cwd() });
+  // const node = spawn('npm', ['start', '--', '--port', '80'], { cwd: process.cwd() });
+  // const url = 'http://stock';
+
+  // Mac
+  const mongod = spawn('mongod', [], { cwd: process.cwd() });
+  const node = spawn('npm', ['start'], { cwd: process.cwd() });
+  const url = 'http://localhost:3000';
+
+  const element = id => document.getElementById(id);
+
+  const nodeLog = element('node_log');
+  const mongodLog = element('mongod_log');
+  const serverStatus = element('server_status');
+  const databaseStatus = element('database_status');
+  const versionStatus = element('version_status');
+
+  function createLogEntry(text, color) {
+    const entry = document.createElement('div');
+    entry.style.color = color;
+    entry.innerHTML = text;
+    return entry;
+  }
+
+  function logOutput(std, logContainer, color = 'black') {
+    let lineBuffer = '';
+    std.on('data', data => {
+      data.toString()
+        .split('\n')
+        .forEach(line => logContainer.appendChild(createLogEntry(line, color)));
+      logContainer.scrollTop = logContainer.clientHeight;
+    });
+  }
+
+  logOutput(mongod.stdout, mongodLog);
+  logOutput(mongod.stderr, mongodLog, 'red');
+  logOutput(node.stdout, nodeLog);
+  logOutput(node.stderr, nodeLog, 'red');
+
+  function updateStatus(response, container) {
+    if (response.status >= 200 && response.status < 300) {
+      container.innerHTML = '<span style="color: green">ออนไลน์</span>';
+    } else {
+      container.innerHTML = '<span style="color: red">ออฟไลน์</span>';
+    }
+  }
+
+  function checkVersion() {
+    const version = spawn('git', ['fetch', 'origin', '&', 'git', 'status'], { cwd: process.cwd() });
+    version.stdout.on('data', data => {
+      console.log(data);
+    });
+    version.on('close', code => {
+      // LOGIC HERE
+    });
+  }
+
+  setInterval(() => {
+    fetch(`${url}/status/server`).then(response => updateStatus(response, serverStatus));
+  }, STATUS_INTERVAL);
+
+  setInterval(() => {
+    fetch(`${url}/status/database`).then(response => updateStatus(response, databaseStatus));
+  }, STATUS_INTERVAL);
+
+  setInterval(() => {
+    checkVersion();
+  }, STATUS_INTERVAL);
+
+  element('show_app_log').addEventListener('click', e => { element('node_log').parentElement.style.visibility = 'visible'; });
+  element('show_database_log').addEventListener('click', e => { element('mongod_log').parentElement.style.visibility = 'visible'; });
+
+  element('close_node_log').addEventListener('click', e => { element('node_log').parentElement.style.visibility = 'collapse'; });
+  element('close_mongo_log').addEventListener('click', e => { element('mongod_log').parentElement.style.visibility = 'collapse'; });
+
+  element('open_app').addEventListener('click', () => shell.openExternal('http://stock/'));
+  element('update_app').addEventListener('click', e => {
+    versionStatus.innerHTML = 'รอสักครู่';
+    const update = spawn('git', ['pull', '&', 'npm', 'install'], { cwd: process.cwd() });
+    update.on('close', code => { checkVersion(); });
+  });
+  </script>
+</body>
+</html>

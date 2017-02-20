@@ -52,6 +52,7 @@ app.use('/api/v0/products', require('./api/products'));
 app.use('/api/v0/misc', require('./api/misc'));
 app.use('/api/v0/users', require('./api/users'));
 app.use('/api/v0/report', require('./api/report'));
+app.use('/api/v0/status', require('./api/status'));
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {
