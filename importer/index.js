@@ -1,8 +1,8 @@
 const { getSheet, toProducts, toTransactions, fillProduct } = require('./parser');
 
-const products = toProducts(getSheet('./data/product.xlsx', 0), 4, { id: 'B', name: 'C', model: 'D' });
-const buys = toTransactions(getSheet('./data/buy.xlsx', 0), 5, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'G', price: 'K' });
-const sells = toTransactions(getSheet('./data/sell.xlsx', 0), 5, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'H', price: 'K' });
+const products = toProducts(getSheet('./importer/data/product.xlsx', 0), 4, { id: 'B', name: 'C', model: 'D' });
+const buys = toTransactions(getSheet('./importer/data/buy.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'G', price: 'K' });
+const sells = toTransactions(getSheet('./importer/data/sell.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'H', price: 'K' });
 
 const Product = require('../server/models/Product');
 const Buy = require('../server/models/Buy');
@@ -11,6 +11,7 @@ const Sell = require('../server/models/Sell');
 console.log('Connecting to MongoDB…');
 const mongoUrl = 'mongodb://localhost/stock';
 const mongoose = require('mongoose');
+const MAX_TIMEOUT =  12 * 60 * 60 * 1000;
 mongoose.Promise = global.Promise;
 mongoose.connect(mongoUrl, { server: { socketOptions: { connectTimeoutMS: MAX_TIMEOUT, socketTimeoutMS: MAX_TIMEOUT }}});
 mongoose.connection.on('connected', function () {
@@ -33,9 +34,11 @@ mongoose.connection.on('connected', function () {
           Buy.insertMany(fillProduct(buys, products)),
           Sell.insertMany(fillProduct(sells, products)),
         ])
-        .then([ buys, sells ] => {
+        .then(response => {
+          const [ buys, sells ] = response;
           console.log(`Done: buy: ${buys.length}, sell: ${sells.length}`);
           console.log('All done');
+          process.exit(-1); // eslint-disable-line no-process-exit
         })
         .catch(err => console.log(`Failed: ${err}`));
       })

@@ -11,3 +11,5 @@ __temp
 .DS_Store
 npm-debug.log
 .idea
+
+importer/data
