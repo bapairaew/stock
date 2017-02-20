@@ -5,7 +5,7 @@
   <title>Stock Server</title>
   <style>
   body {
-    height: 600px;
+    height: 480px;
     display: flex;
     flex-direction: column;
     align-content: center;
@@ -40,9 +40,18 @@
     color: #fff;
     background-color: #108ee9;
     border: none;
+    cursor: pointer;
+  }
+  .button {
+    padding: 10px 50px;
+    font-size: 1.1em;
+    color: #fff;
+    background-color: #108ee9;
+    border: none;
+    cursor: pointer;
   }
   .controller {
-    margin: 20px;
+    margin: 60px 0;
     text-align: center;
   }
   .dialog {
@@ -91,7 +100,7 @@
     </div>
   </div>
   <div class="controller">
-    <button id="open_app">เปิดแอพ</button>
+    <button class="button" id="open_app">เปิดแอพ</button>
   </div>
   <div class="dialog">
     <button id="close_node_log" class="close_dialog">ปิด</button>
@@ -107,15 +116,15 @@
   const spawn = require('child_process').spawn;
   const shell = require('electron').shell;
 
-  // // Windows
-  // const mongod = spawn('mongod', ['--dbpath=G:\\database'], { cwd: process.cwd() });
-  // const node = spawn('npm', ['start', '--', '--port', '80'], { cwd: process.cwd() });
-  // const url = 'http://stock';
+  // Windows
+  const mongod = spawn('mongod', ['--dbpath=G:\\database'], { cwd: process.cwd() });
+  const node = spawn('npm.cmd', ['start', '--', '--port', '80'], { cwd: process.cwd() });
+  const url = 'http://stock';
 
-  // Mac
-  const mongod = spawn('mongod', [], { cwd: process.cwd() });
-  const node = spawn('npm', ['start'], { cwd: process.cwd() });
-  const url = 'http://localhost:3000';
+  // // Mac
+  // const mongod = spawn('mongod', [], { cwd: process.cwd() });
+  // const node = spawn('npm', ['start'], { cwd: process.cwd() });
+  // const url = 'http://localhost:3000';
 
   const element = id => document.getElementById(id);
 
@@ -156,12 +165,17 @@
   }
 
   function checkVersion() {
-    const version = spawn('git', ['fetch', 'origin', '&', 'git', 'status'], { cwd: process.cwd() });
+    const version = spawn('git fetch & git status', { cwd: process.cwd(), shell: true });
+    let isUpdateToDate = false;
     version.stdout.on('data', data => {
-      console.log(data);
+      isUpdateToDate = data.toString().indexOf('up-to-date') > -1;
     });
     version.on('close', code => {
-      // LOGIC HERE
+      if (isUpdateToDate) {
+        versionStatus.innerHTML = '<span style="color: green">ล่าสุด</span>';
+      } else {
+        versionStatus.innerHTML = '<span style="color: red">เก่า</span>';
+      }
     });
   }
 
@@ -173,9 +187,7 @@
     fetch(`${url}/status/database`).then(response => updateStatus(response, databaseStatus));
   }, STATUS_INTERVAL);
 
-  setInterval(() => {
-    checkVersion();
-  }, STATUS_INTERVAL);
+  checkVersion();
 
   element('show_app_log').addEventListener('click', e => { element('node_log').parentElement.style.visibility = 'visible'; });
   element('show_database_log').addEventListener('click', e => { element('mongod_log').parentElement.style.visibility = 'visible'; });
@@ -186,7 +198,9 @@
   element('open_app').addEventListener('click', () => shell.openExternal('http://stock/'));
   element('update_app').addEventListener('click', e => {
     versionStatus.innerHTML = 'รอสักครู่';
-    const update = spawn('git', ['pull', '&', 'npm', 'install'], { cwd: process.cwd() });
+    const update = spawn('git pull & npm install', { cwd: process.cwd(), shell: true });
+    update.stdout.on('data', data => { console.log(data.toString()) });
+    update.stderr.on('data', data => { console.log(data.toString()) });
     update.on('close', code => { checkVersion(); });
   });
   </script>

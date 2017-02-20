@@ -1,8 +1,8 @@
 const { getSheet, toProducts, toTransactions, fillProduct } = require('./parser');
 
-const products = toProducts(getSheet('./importer/data/product.xlsx', 0), 4, { id: 'B', name: 'C', model: 'D' });
-const buys = toTransactions(getSheet('./importer/data/buy.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'G', price: 'K' });
-const sells = toTransactions(getSheet('./importer/data/sell.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'H', price: 'K' });
+const products = toProducts(getSheet('../import-data/product.xlsx', 0), 4, { id: 'B', name: 'C', model: 'D' });
+const buys = toTransactions(getSheet('../import-data/buy.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'G', price: 'K' });
+const sells = toTransactions(getSheet('../import-data/sell.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'H', price: 'K' });
 
 const Product = require('../server/models/Product');
 const Buy = require('../server/models/Buy');
