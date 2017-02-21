@@ -114,7 +114,9 @@
   <script>
   const STATUS_INTERVAL = 5 * 1000;
   const spawn = require('child_process').spawn;
-  const shell = require('electron').shell;
+  const electron = require('electron');
+  const shell = electron.shell;
+  const ipc = electron.ipcRenderer;
 
   // Windows
   const mongod = spawn('mongod', ['--dbpath=G:\\database'], { cwd: process.cwd() });
@@ -125,6 +127,9 @@
   // const mongod = spawn('mongod', [], { cwd: process.cwd() });
   // const node = spawn('npm', ['start'], { cwd: process.cwd() });
   // const url = 'http://localhost:3000';
+
+  ipc.send('pid-message', mongod.pid);
+  ipc.send('pid-message', node.pid);
 
   const element = id => document.getElementById(id);
 
