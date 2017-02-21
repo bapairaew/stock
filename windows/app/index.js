@@ -2,6 +2,8 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
+const spawn = require('child_process').spawn;
+
 let mainWindow;
 
 function createWindow () {
@@ -14,6 +16,7 @@ function createWindow () {
   // mainWindow.webContents.openDevTools();
   mainWindow.on('closed', function () {
     mainWindow = null;
+    const killnode = spawn('taskkill', ['/im', 'node.exe'], { cwd: process.cwd() });
   })
 }
 
