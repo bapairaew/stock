@@ -48,10 +48,10 @@ exports.toTransactions = (sheet, startRow, { order, date, receiptId, product, am
 };
 
 const findById = (id, products) => {
-  const match = products.find(product => product._id === id);
+  const match = products.find(product => product.id === id);
   return match ? match._id : null;
 };
 
 exports.fillProduct = (transactions, products) => {
-  return transactions.map(transaction => Object.assign({}, transaction, { product: findById(transaction, products) }));
+  return transactions.map(transaction => Object.assign({}, transaction, { product: findById(transaction.product, products) }));
 };

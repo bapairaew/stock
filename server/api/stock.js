@@ -28,7 +28,7 @@ const search = (Model, req, res) => {
         { model: { $regex: text, $options: 'i' } },
       ]})
     .lean()
-    .sort({ date: 1, order: 1 })
+    .sort({ date: 1, receiptId: 1, order: 1 })
     .exec(function (err, results) {
       if (err) return res.status(500).send(log(err));
       res.status(200).json(results);
