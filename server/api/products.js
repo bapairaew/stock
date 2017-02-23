@@ -92,14 +92,14 @@ router.get('/details/:id', isAuthenticated, (req, res) => {
 });
 
 router.post('/save', isAuthenticated, (req, res) => {
-  const { news, changes, removes } = classify(req.body);
+  const { adds, changes, removes } = classify(req.body);
 
   Promise.all(join(
-    news.map(({ id, name, model }) => Product.create({ id, name, model })),
+    adds.map(({ id, name, model }) => Product.create({ id, name, model })),
     changes.map(({ _id, id, name, model }) => Product.findOneAndUpdate({ _id }, { $set: { id, name, model } })),
     removes.map(({ _id }) => Product.findOneAndRemove({ _id }))
   ))
-  .then(results => res.status(200).json(parseResults(results, { news, changes, removes })))
+  .then(results => res.status(200).json(parseResults(results, { adds, changes, removes })))
   .catch(err => res.status(500).send(log(err)));
 });
 
