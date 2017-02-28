@@ -33,6 +33,8 @@
   "app.components.StockPage.dateRange": "Date range",
   "app.components.StockPage.edit": "Edit",
   "app.components.StockPage.editingMessageTemplate": "You are editing {numberOfRows} rows.",
+  "app.components.StockPage.newProductsDescriptionTemplate": "{products} are added.",
+  "app.components.StockPage.newProductsMessage": "New products added",
   "app.components.StockPage.orderTheseRows": "Order these rows",
   "app.components.StockPage.removeTheseRows": "Remove these rows",
   "app.components.StockPage.search": "Search",

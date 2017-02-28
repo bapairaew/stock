@@ -51,7 +51,10 @@ const initialState = fromJS({
 });
 
 function dataTableReducer(state = initialState, action) {
-  const { type, value, rowIndex, col, data, query, error, rows, url, endpoint, newRow, addedRows, importer, item, items, payload, editor, ...props } = action;
+  const { type, value, rowIndex, col, data,
+    query, error, rows, url, endpoint, newRow,
+    addedRows, importer, item, items, payload, editor,
+    extras } = action;
   const _data = fromJS(data);
 
   switch (type) {
@@ -110,7 +113,7 @@ function dataTableReducer(state = initialState, action) {
       return state
         .set('importing', false)
         .set('uploadVisible', false)
-        .update('data', arr => arr.concat(state.get('importer')(rows, props)));
+        .update('data', arr => arr.concat(state.get('importer')(rows, extras)));
     case IMPORT_FAILURE:
       return state
         .set('importing', false)

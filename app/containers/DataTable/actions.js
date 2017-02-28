@@ -104,10 +104,11 @@ export function importRows() {
   };
 }
 
-export function importRowsSuccess(results) {
+export function importRowsSuccess(rows, extras) {
   return {
     type: IMPORT_SUCCESS,
-    ...results,
+    rows,
+    extras,
   };
 }
 

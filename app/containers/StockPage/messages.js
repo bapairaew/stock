@@ -82,4 +82,12 @@ export default defineMessages({
     id: 'app.components.StockPage.removeTheseRows',
     defaultMessage: 'Remove these rows',
   },
+  newProductsMessage: {
+    id: 'app.components.StockPage.newProductsMessage',
+    defaultMessage: 'New products added',
+  },
+  newProductsDescriptionTemplate: {
+    id: 'app.components.StockPage.newProductsDescriptionTemplate',
+    defaultMessage: '{products} are added.',
+  },
 });

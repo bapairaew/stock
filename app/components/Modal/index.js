@@ -73,7 +73,7 @@ export const UploadModal = ({ intl, children, action, visible, uploading, start,
               start();
             } else if (status === 'done') {
               message.success(intl.formatMessage(messages.importSuccessMessage, { numberOfRows: response.rows.length }), 3);
-              setTimeout(() => success({ ...response, ...getFormValue(this._form) }), 100);
+              setTimeout(() => success(response.rows, { ...response.extras, ...getFormValue(this._form) }), 100);
             } else if (status === 'error') {
               message.error(intl.formatMessage(messages.importFailureMessage, { error: error + '' }), 3);
               setTimeout(() => failed(error), 100);

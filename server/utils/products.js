@@ -1,8 +1,42 @@
 const Product = require('../models/Product');
 
-exports.populate = function (arr) {
+const DefaultModel = 'HONDA';
+
+exports.populate = function (arr, addIfNotExisted = true) {
   // TODO: optimise this
-  return Promise.all(arr.map(r => Product.findOne({ id: r.product }).lean().then(p => Object.assign({}, r, { product: p }))));
+  const newProducts = [];
+  return new Promise(function (resolve, reject) {
+    Promise.all(arr.map(r =>
+      Product.findOne({ id: r.product })
+        .lean()
+        .then(p => {
+          if (addIfNotExisted && !p) {
+            newProducts.push({ id: r.product, name: r.productName, model: DefaultModel });
+          }
+          return Object.assign({}, r, { product: p || r.product });
+        })))
+        .then(results => {
+          if (newProducts.length === 0) {
+            resolve({ rows: results, newProducts: [] });
+          } else {
+            Promise.all(newProducts.map(product => Product.create(product)))
+              .then(products => {
+                const filledResults = results.map(result => {
+                  if (result.product && !result.product._id) {
+                    const match = products.find(product => product.id === result.product);
+                    return Object.assign({}, result, { product: match });
+                  } else {
+                    return result;
+                  }
+                });
+
+                resolve({ rows: filledResults, newProducts: products });
+              })
+              .catch(err => reject(err));
+          }
+        })
+        .catch(err => reject(err));
+  });
 };
 
 const startRow = 2;

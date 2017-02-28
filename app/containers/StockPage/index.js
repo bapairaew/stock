@@ -16,6 +16,7 @@ import moment from 'moment-timezone';
 import GetContainerDimensions from 'react-dimensions';
 import { StyledLayoutWithSideBar, StyledSider, StyledContent } from 'components/Layout';
 import RemainingBar from './RemainingBar';
+import { notification } from 'antd';
 
 import messages from './messages';
 
@@ -29,6 +30,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
   };
 
   componentDidMount() {
+    const { intl } = this.context;
     const { query, fetch, setEndpoint, route: { stockType }, setNewRow, setImporter, setExportingParams } = this.props;
     setNewRow(() => fromJS({
       _id: null,
@@ -40,11 +42,19 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       price: 0,
     }));
     setEndpoint(`/api/v0/stock/${stockType}`);
-    setImporter((rows, form) => rows.map(row => fromJS({
-      receiptId: form && form.receiptId,
-      date: (form && form.date) || new Date(),
-      ...row,
-    })));
+    setImporter((rows, extras) => {
+      if (extras.newProducts && extras.newProducts.length > 0) {
+        notification.info({
+          message: intl.formatMessage(messages.newProductsMessage),
+          description: intl.formatMessage(messages.newProductsDescriptionTemplate, { products: extras.newProducts.map(p => p.id).join(', ') })
+        });
+      }
+      return rows.map(row => fromJS({
+        receiptId: extras && extras.receiptId,
+        date: (extras && extras.date) || new Date(),
+        ...row,
+      }));
+    });
     fetch({
       text: '',
       receiptId: '',

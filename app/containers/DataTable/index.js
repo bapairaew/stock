@@ -121,7 +121,7 @@ function mapDispatchToProps(dispatch) {
     save: rows => dispatch(save(rows)),
     exportRows: rows => dispatch(exportRows(rows)),
     importRows: () => dispatch(importRows()),
-    importRowsSuccess: results => dispatch(importRowsSuccess(results)),
+    importRowsSuccess: (rows, extras) => dispatch(importRowsSuccess(rows, extras)),
     importRowsFailure: error => dispatch(importRowsFailure(error)),
     add: () => dispatch(addRow()),
     searchOpen: () => dispatch(searchOpen()),

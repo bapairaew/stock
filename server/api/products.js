@@ -105,7 +105,7 @@ router.post('/save', isAuthenticated, (req, res) => {
 
 router.post('/import', isAuthenticated, upload.single('file'), (req, res) => {
   const { path } = req.file;
-  res.status(200).json({ rows: fromWorkbook(read(path)) });
+  res.status(200).json({ rows: fromWorkbook(read(path)), extras: null });
   remove(path);
 });
 

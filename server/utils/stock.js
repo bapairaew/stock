@@ -7,6 +7,7 @@ exports.fromWorkbook = function (workbook) {
     results.push({
       order: +sheet[`A${index}`].v,
       product: sheet[`B${index}`].v,
+      productName: sheet[`C${index}`].v,
       amount: +sheet[`D${index}`].v,
       price: +sheet[`E${index}`].v
     });

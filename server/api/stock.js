@@ -77,7 +77,7 @@ router.post('/buy/save', isAuthenticated, (req, res) => {
 const _import = (req, res) => {
   const { path, originalname } = req.file;
   populate(fromWorkbook(read(path)))
-    .then(results => res.status(200).json({ rows: results, receiptId: name(originalname) }))
+    .then(results => res.status(200).json({ rows: results.rows, extras: { newProducts: results.newProducts, receiptId: name(originalname) }}))
     .catch(err => res.status(500).json(log({ error: err })));
   remove(path);
 };
