@@ -1,8 +1,8 @@
 const { getSheet, toProducts, toTransactions, fillProduct } = require('./parser');
 
 const products = toProducts(getSheet('../import-data/product.xlsx', 0), 4, { id: 'B', name: 'C', model: 'D' });
-const buys = toTransactions(getSheet('../import-data/buy.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'G', price: 'K' });
-const sells = toTransactions(getSheet('../import-data/sell.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', amount: 'H', price: 'K' });
+const buys = toTransactions(getSheet('../import-data/buy.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', productName: 'E', productModel: 'F', amount: 'G', price: 'K' });
+const sells = toTransactions(getSheet('../import-data/sell.xlsx', 0), 4, { order: 'A', date: 'B', receiptId: 'C', product: 'D', productName: 'E', productModel: 'F', amount: 'H', price: 'K' });
 
 const Product = require('../server/models/Product');
 const Buy = require('../server/models/Buy');
@@ -24,6 +24,17 @@ mongoose.connection.on('connected', function () {
     Sell.remove({}),
   ])
   .then(() => {
+    const before = products.length;
+    console.log('Adding no matched products from transactions…');
+    const addToProductIfNotMatched = t => {
+      if (!products.find(p => p.id === t.product)) {
+        products.push({ id: t.product, name: t.productModel, model: t.productModel });
+      }
+    };
+    buys.forEach(addToProductIfNotMatched);
+    sells.forEach(addToProductIfNotMatched);
+    console.log(`Done: ${products.length - before} new`);
+
     console.log('Adding product…');
     Product
       .insertMany(products)

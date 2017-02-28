@@ -27,7 +27,7 @@ exports.toProducts = (sheet, startRow, { id, name, model }) => {
 
 const parseDate = excelDate => new Date((excelDate - (25567 + 1))*86400*1000 - (19 * 60 * 60 * 1000));
 
-exports.toTransactions = (sheet, startRow, { order, date, receiptId, product, amount, price }) => {
+exports.toTransactions = (sheet, startRow, { order, date, receiptId, product, productName, productModel, amount, price }) => {
   console.log(`Parsing transactions…`);
   const transactions = [];
   let row = startRow;
@@ -37,6 +37,8 @@ exports.toTransactions = (sheet, startRow, { order, date, receiptId, product, am
       date: parseDate(+sheet[date + row].v),
       receiptId: sheet[receiptId + row].v,
       product: sheet[product + row].v,
+      productName: sheet[productName + row].v,
+      productModel: sheet[productModel + row].v,
       amount: +sheet[amount + row].v,
       price: (sheet[price + row] && +sheet[price + row].v) || 0,
     };
