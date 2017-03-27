@@ -59,7 +59,7 @@ export class StockPage extends React.PureComponent { // eslint-disable-line reac
       text: '',
       receiptId: '',
       startDate: moment().subtract(30, 'days').startOf('day').toDate(),
-      endDate: moment().endOf('day').toDate(),
+      endDate: moment().add(60, 'days').endOf('day').toDate(),
     });
     setExportingParams({
       fields: [
